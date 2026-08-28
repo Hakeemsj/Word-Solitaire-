@@ -13,18 +13,12 @@ const DEV_MODE = true;
 
 const el = (sel, root = document) => root.querySelector(sel);
 
-/* A custom crown mark (in place of the 👑 emoji) — a simple gem-tipped
-   silhouette that inherits its color from CSS via currentColor, so the
-   same icon can read as "empty", "active", or "complete" just by
-   changing the color/size around it. */
-function crownIcon(extraClass) {
-  return `<svg class="crown-svg${extraClass ? " " + extraClass : ""}" viewBox="0 0 24 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <path d="M2 7.2L6.2 10.4 12 2.8l5.8 7.6 4.2-3.2L20.2 17H3.8L2 7.2Z" fill="currentColor"/>
-    <rect x="3.8" y="17" width="16.4" height="2.2" rx="1.1" fill="currentColor"/>
-    <circle cx="6.2" cy="7.4" r="1.5" class="crown-gem"/>
-    <circle cx="12" cy="4.6" r="1.7" class="crown-gem"/>
-    <circle cx="17.8" cy="7.4" r="1.5" class="crown-gem"/>
-  </svg>`;
+/* The brand mark (in place of the old crown icon) — a heavy gold "W",
+   same gradient treatment as the home screen's card logo, so a
+   claimed/completed category reads as "stamped" with the game's own
+   mark instead of a generic royalty icon. */
+function wMarkIcon(extraClass) {
+  return `<span class="w-mark${extraClass ? " " + extraClass : ""}" aria-hidden="true">W</span>`;
 }
 
 /* The coin "logo" (in place of the 🪙 emoji) — a hexagonal gold token
@@ -58,7 +52,6 @@ const refillHeartsBtn = el("#refill-hearts-btn");
 const refillHeartsCost = el("#refill-hearts-cost");
 const noHeartsCloseBtn = el("#no-hearts-close-btn");
 
-const statStage = el("#stat-stage");
 const statMoves = el("#stat-moves");
 const statHints = el("#stat-hints");
 const statCoins = el("#stat-coins");
@@ -390,7 +383,6 @@ function renderGame() {
 
   const metrics = updateCardMetrics();
 
-  statStage.textContent = s.stageId;
   statMoves.textContent = s.movesLeft;
   statHints.textContent = s.hintsLeft;
   statCoins.textContent = s.coins;
@@ -459,7 +451,7 @@ function makeCardFace(card, extraClass, s, metrics) {
     div.innerHTML = `
       <div class="marker-progress">${cat.collected}/${cat.target}</div>
       <span class="card-word" style="font-size:${fs.toFixed(1)}px">${card.word}</span>
-      <span class="marker-crown">${crownIcon()}</span>
+      <span class="marker-crown">${wMarkIcon()}</span>
     `;
   } else {
     const baseFs = (metrics && metrics.fontSize) || 16;
@@ -925,7 +917,7 @@ function renderSlots(s, metrics) {
       const nameFs = fittedFontSize(f.name, baseFs * 0.68, cardW - 14, 800);
       body = `<div class="foundation-name" style="font-size:${nameFs.toFixed(1)}px">${f.name}</div>
               <div class="foundation-progress">${f.collected}/${f.target}</div>
-              <div class="foundation-crown">${crownIcon()}</div>`;
+              <div class="foundation-crown">${wMarkIcon()}</div>`;
     } else {
       const tagFs = fittedFontSize(f.name, baseFs * 0.6, cardW - 18, 800);
       // The delivered word is the card's whole point, so it gets to be
@@ -934,7 +926,7 @@ function renderSlots(s, metrics) {
       const wordFs = fittedFontSize(f.lastWord || "", baseFs * 1.2, cardW - 14, 800);
       tag = `<div class="foundation-tag" style="font-size:${tagFs.toFixed(1)}px">${f.name}</div>`;
       body = `<div class="foundation-last-word" style="font-size:${wordFs.toFixed(1)}px">${f.lastWord || ""}</div>
-              ${complete ? `<div class="foundation-crown gold">${crownIcon()}</div>` : `<div class="foundation-progress big">${f.collected}/${f.target}</div>`}`;
+              ${complete ? `<div class="foundation-crown gold">${wMarkIcon()}</div>` : `<div class="foundation-progress big">${f.collected}/${f.target}</div>`}`;
     }
 
     const cardCls = "card foundation-card" + (f && !complete ? " active-cat" : "");
@@ -946,8 +938,8 @@ function renderSlots(s, metrics) {
 
 function renderTableau(s, metrics) {
   const cardH = (metrics && metrics.cardH) || 108;
-  const backStep = cardH * 0.065;
-  const clusterStep = cardH * 0.22;
+  const backStep = cardH * 0.09;
+  const clusterStep = cardH * 0.28;
 
   tableauEl.innerHTML = "";
   s.tableau.forEach((col, colIdx) => {

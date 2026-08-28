@@ -89,7 +89,8 @@ body {
   border: 1px solid var(--card-border);
   box-shadow: var(--shadow-soft);
 }
-.home-coin-icon, .home-hearts .heart-icon { width: 22px; height: 22px; flex-shrink: 0; }
+.home-coins .home-coin-icon { width: 30px; height: 30px; flex-shrink: 0; }
+.home-hearts .heart-icon { width: 22px; height: 22px; flex-shrink: 0; }
 .home-add-btn {
   width: 22px;
   height: 22px;
@@ -356,13 +357,11 @@ body {
 }
 .icon-btn:hover { transform: translateY(-2px); }
 
-/* The header's pill badges (level, coins, combo) all share one box
+/* The header's pill badges (coins, undo, hint) all share one box
    model — fixed 44px height, centered content, same padding/radius —
    so they line up on one consistent baseline instead of each sizing
    itself off its own font-size/padding and drifting a few px apart. */
-.stage-pill,
-.coins-badge.small,
-.combo-badge {
+.coins-badge.small {
   height: 44px;
   padding: 0 16px;
   box-sizing: border-box;
@@ -376,35 +375,65 @@ body {
   font-weight: 800;
   box-shadow: var(--shadow-soft);
   flex-shrink: 0;
+  color: var(--accent);
 }
-.stage-pill { font-family: "Baloo 2", sans-serif; }
-.coins-badge.small { color: var(--accent); }
 
+/* Sits directly above the stock pile (same --stock-left anchor,
+   centered on the card's own width) instead of in the header row —
+   the streak belongs to the draw pile it's built from, not the
+   settings/coins/undo/hint row. */
 .combo-badge {
+  position: absolute;
+  left: calc(var(--stock-left, 0px) + var(--card-w, 84px) / 2);
+  top: 0;
+  transform: translateX(-50%);
+  height: 36px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  box-shadow: var(--shadow-soft);
   color: rgba(255, 255, 255, 0.55);
   transition: color 0.15s ease, transform 0.15s ease, background 0.15s ease;
 }
 .combo-badge.active {
   color: #fff3d0;
   background: linear-gradient(155deg, var(--accent-2), #c9560a);
-  animation: comboPulse 0.6s ease;
+  animation: comboPulseCentered 0.6s ease;
 }
 /* Each milestone tier layers on a bolder glow so the badge itself keeps
-   escalating alongside the toast/sound as the streak climbs. */
+   escalating alongside the toast/sound as the streak climbs. The scale
+   still has to chain onto the base translateX(-50%) that keeps the
+   badge centered over the stock — replacing it outright would yank
+   the badge sideways every time a tier kicks in. */
 .combo-badge.tier-2 { box-shadow: 0 0 0 2px rgba(255, 194, 51, 0.5), var(--shadow-soft); }
 .combo-badge.tier-3 {
   box-shadow: 0 0 0 3px rgba(255, 194, 51, 0.65), 0 0 14px rgba(255, 150, 30, 0.55), var(--shadow-soft);
-  transform: scale(1.05);
+  transform: translateX(-50%) scale(1.05);
 }
 .combo-badge.tier-4 {
   background: linear-gradient(155deg, #ffd93d, #ff6b00);
   box-shadow: 0 0 0 4px rgba(255, 194, 51, 0.8), 0 0 20px rgba(255, 120, 20, 0.7), var(--shadow-soft);
-  transform: scale(1.1);
+  transform: translateX(-50%) scale(1.1);
 }
 @keyframes comboPulse {
   0% { transform: scale(1); }
   40% { transform: scale(1.18); }
   100% { transform: scale(1); }
+}
+/* Same pulse as comboPulse, just chained onto the combo-badge's own
+   translateX(-50%) centering so it doesn't jump sideways mid-pulse. */
+@keyframes comboPulseCentered {
+  0% { transform: translateX(-50%) scale(1); }
+  40% { transform: translateX(-50%) scale(1.18); }
+  100% { transform: translateX(-50%) scale(1); }
 }
 
 .hint-btn {
@@ -464,7 +493,9 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
 }
 
-/* ----- Top row: moves badge + waste/stock ----- */
+/* ----- Top row: moves badge + streak + waste/stock ----- */
+/* Extra top space reserved for the streak badge, which sits directly
+   above the stock pile rather than in the header row. */
 .table-top {
   position: relative;
   max-width: 600px;
@@ -473,23 +504,24 @@ body {
   align-items: flex-start;
   gap: 14px;
   flex-wrap: wrap;
-  min-height: var(--card-h, 108px);
+  min-height: calc(var(--card-h, 108px) + 42px);
 }
 
-/* Pill badge, matching the coins/stage-pill style elsewhere in the
-   header instead of the old standalone ribbon-banner shape. */
+/* Pill badge, matching the coins badge style elsewhere in the header
+   instead of the old standalone ribbon-banner shape. Sized ~30% up
+   from its original padding/font-sizes per request. */
 .moves-badge {
   background: rgba(0, 0, 0, 0.22);
   border-radius: 999px;
-  padding: 8px 20px;
+  padding: 10px 26px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1px;
   box-shadow: var(--shadow-soft);
 }
-.moves-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255, 255, 255, 0.65); }
-.moves-value { font-family: "Baloo 2", sans-serif; font-size: 1.35rem; font-weight: 800; color: #ffffff; text-shadow: 0 2px 3px rgba(0, 0, 0, 0.25); }
+.moves-label { font-size: 0.98rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255, 255, 255, 0.65); }
+.moves-value { font-family: "Baloo 2", sans-serif; font-size: 1.75rem; font-weight: 800; color: #ffffff; text-shadow: 0 2px 3px rgba(0, 0, 0, 0.25); }
 .moves-value.warn { color: #ff8a8a; animation: warnPulse 1s ease-in-out infinite; }
 @keyframes warnPulse {
   0%, 100% { opacity: 1; }
@@ -499,7 +531,7 @@ body {
 .draw-area {
   position: absolute;
   left: 0;
-  top: 0;
+  top: 42px;
   width: 100%;
   height: var(--card-h, 108px);
   pointer-events: none;
@@ -650,7 +682,7 @@ body {
   color: #7a3d00;
   opacity: 0.75;
 }
-.marker-crown { position: absolute; top: 5px; right: 6px; width: 16px; color: var(--accent-2); }
+.marker-crown { position: absolute; top: 4px; right: 6px; }
 
 /* ----- Waste pile: front card usable, 2 previous peek out sideways ----- */
 .card.waste-card {
@@ -807,24 +839,37 @@ body {
 }
 .foundation-last-word { font-size: 0.72rem; font-weight: 900; color: var(--ink); text-transform: capitalize; white-space: nowrap; max-width: 100%; }
 .foundation-type { font-size: 0.63rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
-.foundation-crown { position: absolute; top: 6px; right: 6px; width: 18px; opacity: 0.55; color: var(--accent-2); }
+.foundation-crown { position: absolute; top: 4px; right: 6px; opacity: 0.55; }
 .foundation-crown.gold {
   opacity: 1;
   position: static;
   margin-top: 2px;
-  width: 22px;
-  color: var(--accent);
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
   animation: crownPop 0.4s ease;
 }
-.crown-svg { width: 100%; height: auto; display: block; }
-.crown-gem { fill: var(--felt); }
-.marker-crown .crown-gem { fill: rgba(255, 255, 255, 0.9); }
+/* The brand mark — a heavy gold-foil "W", same gradient treatment as
+   the home screen's card logo (js/ui.js wMarkIcon()), standing in for
+   the old crown icon on a claimed or completed category card. */
+.w-mark {
+  display: inline-block;
+  font-family: "Playfair Display", serif;
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(155deg, #ffe9a8, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.marker-crown .w-mark { font-size: 1rem; }
+.foundation-crown .w-mark { font-size: 1.05rem; }
+.foundation-crown.gold .w-mark { font-size: 1.4rem; }
 
 /* Coin logo — sized in em so it scales with whatever font-size its
    context already uses (a small header badge, a toast, or the big win
    screen reward icon) the same way the 🪙 emoji it replaces used to. */
 .coin-icon { width: 1em; height: 1em; vertical-align: -0.15em; display: inline-block; flex-shrink: 0; }
+.coins-badge.small .game-coin-icon { width: 26px; height: 26px; }
 @keyframes crownPop {
   0% { transform: scale(0.5) rotate(-15deg); opacity: 0; }
   70% { transform: scale(1.15) rotate(5deg); }
@@ -1258,19 +1303,16 @@ body {
 }
 
 @media (max-width: 480px) {
-  .stage-pill,
   .coins-badge.small,
-  .combo-badge,
   .hint-btn {
     padding-left: 12px;
     padding-right: 12px;
   }
-  .stage-pill { font-size: 0.88rem; }
   .coins-badge.small { font-size: 0.9rem; }
   .hint-btn { font-size: 0.85rem; }
-  .moves-badge { padding: 7px 14px; }
-  .moves-value { font-size: 1.1rem; }
-  .combo-badge { font-size: 0.8rem; }
+  .moves-badge { padding: 9px 18px; }
+  .moves-value { font-size: 1.4rem; }
+  .combo-badge { font-size: 0.8rem; padding: 0 12px; }
   .home-branding { margin-top: 8vh; }
 }
 
