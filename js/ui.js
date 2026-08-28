@@ -101,6 +101,7 @@ const winMovesUsed = el("#win-moves-used");
 const settingsModal = el("#settings-modal");
 const settingsModalBox = el(".modal", settingsModal);
 const settingsSoundBtn = el("#settings-sound-btn");
+const settingsVibrationBtn = el("#settings-vibration-btn");
 const settingsCloseBtn = el("#settings-close-btn");
 const settingsBackBtn = el("#settings-back-btn");
 const settingsHowToPlayBtn = el("#settings-howtoplay-btn");
@@ -429,6 +430,7 @@ function renderGame() {
     if (!wonSoundPlayed) {
       wonSoundPlayed = true;
       Sound.win();
+      Haptics.win();
     }
   }
 
@@ -482,20 +484,28 @@ function pointInRect(x, y, rect) {
    drive the same combo/streak feedback for an identical outcome. */
 function playMoveFeedbackSound(result, combo) {
   if (result.success) {
-    if (result.kind === "foundation") Sound.deliver();
-    else Sound.stack();
+    if (result.kind === "foundation") {
+      Sound.deliver();
+      Haptics.deliver();
+    } else {
+      Sound.stack();
+      Haptics.stack();
+    }
     if (combo && combo.bonus > 0) {
       const milestone = COMBO_MILESTONES.find((m) => m.threshold === combo.streak);
       if (milestone) {
         Sound.milestone(milestone.tier);
+        Haptics.milestone(milestone.tier);
         showToast(`${milestone.label} +${combo.bonus} ${coinIcon("toast-coin")}`, "good");
       } else {
         Sound.combo(combo.streak);
+        Haptics.combo(combo.streak);
         showToast(`🔥 Streak ×${combo.streak} — +${combo.bonus} ${coinIcon("toast-coin")}`, "good");
       }
     }
   } else if (result.kind) {
     Sound.wrong();
+    Haptics.wrong();
     const { priorStreak } = Game.breakCombo();
     if (priorStreak >= 3) showToast("Streak broken 💔", "bad");
   }
@@ -504,6 +514,7 @@ function playMoveFeedbackSound(result, combo) {
 function applyCategoryCompletionEffects(completed) {
   if (!completed) return;
   Sound.complete();
+  Haptics.complete();
   const slotEl = foundationsEl.children[completed.slotIndex];
   if (slotEl) {
     const r = slotEl.getBoundingClientRect();
@@ -525,6 +536,7 @@ function handleCardTap(card, source) {
   if (!selection) {
     selection = { card, source };
     Sound.pickup();
+    Haptics.pickup();
     renderGame();
     return;
   }
@@ -738,6 +750,7 @@ function attachDragOrHint(cardEl, card, source) {
       origTop: rect.top,
     };
     Sound.pickup();
+    Haptics.pickup();
     cardEl.setPointerCapture(e.pointerId);
     cardEl.classList.add("dragging");
     e.preventDefault();
@@ -838,6 +851,7 @@ function renderStock(s) {
   pile.addEventListener("click", () => {
     Game.drawStock();
     Sound.flip();
+    Haptics.flip();
     renderGame();
   });
   stockEl.appendChild(pile);
@@ -1070,8 +1084,13 @@ function updateSettingsSoundBtn() {
   settingsSoundBtn.setAttribute("aria-checked", Sound.isOn() ? "true" : "false");
 }
 
+function updateSettingsVibrationBtn() {
+  settingsVibrationBtn.setAttribute("aria-checked", Haptics.isOn() ? "true" : "false");
+}
+
 function openSettings() {
   updateSettingsSoundBtn();
+  updateSettingsVibrationBtn();
   settingsBackBtn.style.display = screenGame.classList.contains("active") ? "" : "none";
   setModalOpen(settingsModal, settingsModalBox, true);
 }
@@ -1082,6 +1101,11 @@ gameSettingsBtn.addEventListener("click", openSettings);
 settingsSoundBtn.addEventListener("click", () => {
   Sound.toggle();
   updateSettingsSoundBtn();
+});
+
+settingsVibrationBtn.addEventListener("click", () => {
+  Haptics.toggle();
+  updateSettingsVibrationBtn();
 });
 
 settingsBackBtn.addEventListener("click", () => {

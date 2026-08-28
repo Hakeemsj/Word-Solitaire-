@@ -972,6 +972,7 @@ body {
   gap: 12px;
   text-align: left;
 }
+.settings-row + .settings-row { margin-top: 14px; }
 .settings-row-label { font-weight: 700; color: var(--ink); }
 .settings-back-btn { width: 100%; margin: 24px 0 0; }
 .settings-back-btn + .settings-back-btn { margin-top: 10px; }
