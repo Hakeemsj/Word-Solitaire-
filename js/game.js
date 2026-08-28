@@ -27,7 +27,7 @@ const DRAW_COUNT = 1;
 const VISIBLE_WASTE = 3; // the front card plus 2 peeking behind it
 
 const MAX_LIVES = 5;
-const LIFE_REGEN_MS = 15 * 60 * 1000; // one heart every 15 minutes
+const LIFE_REGEN_MS = 30 * 60 * 1000; // one heart every 30 minutes
 const HEART_REFILL_COST = 50;
 
 const DEFAULT_SAVE = { coins: 20, unlockedStage: 1, lives: MAX_LIVES, lastLifeLostAt: null, updatedAt: 0 };

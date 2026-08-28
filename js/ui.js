@@ -938,8 +938,8 @@ function renderSlots(s, metrics) {
 
 function renderTableau(s, metrics) {
   const cardH = (metrics && metrics.cardH) || 108;
-  const backStep = cardH * 0.09;
-  const clusterStep = cardH * 0.28;
+  const backStep = cardH * 0.13;
+  const clusterStep = cardH * 0.36;
 
   tableauEl.innerHTML = "";
   s.tableau.forEach((col, colIdx) => {

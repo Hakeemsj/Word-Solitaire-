@@ -90,7 +90,7 @@ body {
   box-shadow: var(--shadow-soft);
 }
 .home-coins .home-coin-icon { width: 30px; height: 30px; flex-shrink: 0; }
-.home-hearts .heart-icon { width: 22px; height: 22px; flex-shrink: 0; }
+.home-hearts .heart-icon { width: 30px; height: 30px; flex-shrink: 0; }
 .home-add-btn {
   width: 22px;
   height: 22px;
@@ -378,74 +378,60 @@ body {
   color: var(--accent);
 }
 
-/* Sits directly above the stock pile (same --stock-left anchor,
-   centered on the card's own width) instead of in the header row —
-   the streak belongs to the draw pile it's built from, not the
-   settings/coins/undo/hint row. */
+/* Back in the header row, last item — takes the spot the hint button
+   used to occupy (pushed to the row's far end via margin-left:auto),
+   now that hint sits next to undo instead. */
 .combo-badge {
-  position: absolute;
-  left: calc(var(--stock-left, 0px) + var(--card-w, 84px) / 2);
-  top: 0;
-  transform: translateX(-50%);
-  height: 36px;
-  padding: 0 14px;
+  margin-left: auto;
+  height: 44px;
+  padding: 0 16px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
   white-space: nowrap;
   background: rgba(0, 0, 0, 0.2);
   border-radius: 999px;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 800;
   box-shadow: var(--shadow-soft);
   color: rgba(255, 255, 255, 0.55);
+  flex-shrink: 0;
   transition: color 0.15s ease, transform 0.15s ease, background 0.15s ease;
 }
 .combo-badge.active {
   color: #fff3d0;
   background: linear-gradient(155deg, var(--accent-2), #c9560a);
-  animation: comboPulseCentered 0.6s ease;
+  animation: comboPulse 0.6s ease;
 }
 /* Each milestone tier layers on a bolder glow so the badge itself keeps
-   escalating alongside the toast/sound as the streak climbs. The scale
-   still has to chain onto the base translateX(-50%) that keeps the
-   badge centered over the stock — replacing it outright would yank
-   the badge sideways every time a tier kicks in. */
+   escalating alongside the toast/sound as the streak climbs. */
 .combo-badge.tier-2 { box-shadow: 0 0 0 2px rgba(255, 194, 51, 0.5), var(--shadow-soft); }
 .combo-badge.tier-3 {
   box-shadow: 0 0 0 3px rgba(255, 194, 51, 0.65), 0 0 14px rgba(255, 150, 30, 0.55), var(--shadow-soft);
-  transform: translateX(-50%) scale(1.05);
+  transform: scale(1.05);
 }
 .combo-badge.tier-4 {
   background: linear-gradient(155deg, #ffd93d, #ff6b00);
   box-shadow: 0 0 0 4px rgba(255, 194, 51, 0.8), 0 0 20px rgba(255, 120, 20, 0.7), var(--shadow-soft);
-  transform: translateX(-50%) scale(1.1);
+  transform: scale(1.1);
 }
 @keyframes comboPulse {
   0% { transform: scale(1); }
   40% { transform: scale(1.18); }
   100% { transform: scale(1); }
 }
-/* Same pulse as comboPulse, just chained onto the combo-badge's own
-   translateX(-50%) centering so it doesn't jump sideways mid-pulse. */
-@keyframes comboPulseCentered {
-  0% { transform: translateX(-50%) scale(1); }
-  40% { transform: translateX(-50%) scale(1.18); }
-  100% { transform: translateX(-50%) scale(1); }
-}
 
 .hint-btn {
-  /* A normal flex item in .game-header, same as every other badge in
-     the row — it used to be pinned via position:absolute to a
-     JS-computed offset (so it would line up above the stock pile),
-     but that removed it from flex-wrap's flow entirely: on a narrow
-     screen it had nowhere to go but overlap a neighbor or clip off the
-     edge. As a normal item it just wraps to the next line like
-     everything else when the row runs out of room. */
+  /* A normal flex item in .game-header, right after undo — same as
+     every other badge in the row. It used to be pinned via
+     position:absolute to a JS-computed offset (so it would line up
+     above the stock pile), but that removed it from flex-wrap's flow
+     entirely: on a narrow screen it had nowhere to go but overlap a
+     neighbor or clip off the edge. As a normal item it just wraps to
+     the next line like everything else when the row runs out of room. */
   position: relative;
-  margin-left: auto;
   width: 44px;
   height: 44px;
   padding: 0;
@@ -494,8 +480,6 @@ body {
 }
 
 /* ----- Top row: moves badge + streak + waste/stock ----- */
-/* Extra top space reserved for the streak badge, which sits directly
-   above the stock pile rather than in the header row. */
 .table-top {
   position: relative;
   max-width: 600px;
@@ -504,7 +488,7 @@ body {
   align-items: flex-start;
   gap: 14px;
   flex-wrap: wrap;
-  min-height: calc(var(--card-h, 108px) + 42px);
+  min-height: var(--card-h, 108px);
 }
 
 /* Pill badge, matching the coins badge style elsewhere in the header
@@ -531,7 +515,7 @@ body {
 .draw-area {
   position: absolute;
   left: 0;
-  top: 42px;
+  top: 0;
   width: 100%;
   height: var(--card-h, 108px);
   pointer-events: none;
