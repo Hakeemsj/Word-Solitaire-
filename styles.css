@@ -199,6 +199,8 @@ body {
   outline: 1px solid rgba(242, 163, 13, 0.4);
   outline-offset: -6px;
   padding: 16px 0 12px;
+  justify-content: center;
+  gap: 6px;
 }
 .home-card-corner {
   position: absolute;
@@ -214,9 +216,15 @@ body {
 .home-card-w {
   font-size: 3.2rem;
   line-height: 1;
-  color: #14343a;
   font-family: "Playfair Display", serif;
   font-weight: 900;
+  /* A gold-foil letter, not a flat tint: a light-to-deep gold sweep
+     clipped to the glyph itself. */
+  background: linear-gradient(155deg, #ffe9a8, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 .home-card-sparkle { width: 14px; height: 14px; }
 
