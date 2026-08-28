@@ -160,29 +160,52 @@ const Tutorial = (function () {
     bubble.style.left = left + "px";
   }
 
+  function positionDestMarker(destEl) {
+    const marker = document.getElementById("tutorial-dest-marker");
+    if (!destEl) {
+      marker.style.display = "none";
+      return;
+    }
+    const r = destEl.getBoundingClientRect();
+    const pad = 5;
+    marker.style.display = "block";
+    marker.style.left = r.left - pad + "px";
+    marker.style.top = r.top - pad + "px";
+    marker.style.width = r.width + pad * 2 + "px";
+    marker.style.height = r.height + pad * 2 + "px";
+  }
+
   function renderStep(s) {
     const bubbleText = document.getElementById("tutorial-bubble-text");
     if (step === 0) {
       const marker = findReachableMarker(s);
+      const openSlotIdx = s.slots.findIndex((x) => x === null);
+      const destEl = openSlotIdx !== -1 ? foundationsEl.children[openSlotIdx] : null;
       if (marker) {
-        bubbleText.textContent = "Tap this card to open a category.";
+        bubbleText.textContent = "Tap this card to open a category — it'll claim the empty slot marked below.";
         positionSpotlight(elForCard(marker));
+        positionDestMarker(destEl);
       } else {
         bubbleText.textContent = "Tap the stock to draw a new card.";
         positionSpotlight(stockEl);
+        positionDestMarker(null);
       }
     } else if (step === 1) {
       const word = findReachableWordForOpenCategory(s);
       if (word) {
-        bubbleText.textContent = "Now tap a matching word to collect it.";
+        const category = s.categoryPool[s.wordToCategory[word.word]];
+        bubbleText.textContent = `Now tap "${word.word}" — it goes to ${category.name}.`;
         positionSpotlight(elForCard(word));
+        positionDestMarker(foundationsEl.children[category.slotIndex]);
       } else {
         bubbleText.textContent = "Draw more cards from the stock to find a match.";
         positionSpotlight(stockEl);
+        positionDestMarker(null);
       }
     } else {
       bubbleText.textContent = "You've got it! Keep matching until the board is clear.";
       positionSpotlight(null);
+      positionDestMarker(null);
     }
   }
 

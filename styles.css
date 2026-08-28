@@ -1033,6 +1033,40 @@ body {
   0%, 100% { box-shadow: 0 0 0 2px var(--accent), 0 0 0 9999px rgba(6, 12, 14, 0.62); }
   50% { box-shadow: 0 0 0 5px var(--accent), 0 0 0 9999px rgba(6, 12, 14, 0.62); }
 }
+/* A second, lighter marker for where the card in the main spotlight is
+   about to go — drawn on top of the dimmed backdrop (not "un-dimmed"
+   itself, since the box-shadow-cutout trick above only supports one
+   clear hole at a time) so the player can see source and destination
+   at a glance instead of just where to tap. */
+.tutorial-dest-marker {
+  position: fixed;
+  display: none;
+  border-radius: 14px;
+  border: 3px dashed var(--good);
+  pointer-events: none;
+  z-index: 1;
+  transition: left 0.25s ease, top 0.25s ease, width 0.25s ease, height 0.25s ease;
+  animation: tutorialDestPulse 1.6s ease-in-out infinite;
+}
+@keyframes tutorialDestPulse {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+.tutorial-dest-label {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  background: var(--good);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+  box-shadow: var(--shadow-soft);
+}
 .tutorial-bubble {
   position: fixed;
   max-width: 260px;
