@@ -936,7 +936,7 @@ body {
 .modal-text { color: var(--ink); font-weight: 600; }
 .modal-text.small { font-size: 0.85rem; color: var(--muted); }
 
-/* ---------- Settings / cloud sync modal ---------- */
+/* ---------- Settings modal ---------- */
 .settings-row {
   display: flex;
   align-items: center;
@@ -945,52 +945,33 @@ body {
   text-align: left;
 }
 .settings-row-label { font-weight: 700; color: var(--ink); }
-.settings-back-btn { width: 100%; margin: 4px 0 14px; }
-.settings-divider {
+.settings-back-btn { width: 100%; margin: 24px 0 14px; }
+
+.settings-toggle {
+  position: relative;
+  width: 50px;
+  height: 30px;
+  border-radius: 999px;
   border: none;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  margin: 18px 0;
+  background: #d6d0bd;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.18s ease;
 }
-.sync-code-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin: 10px 0 6px;
-}
-.sync-code-value {
-  font-family: "Baloo 2", sans-serif;
-  font-size: 1.3rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: var(--accent-2);
-  background: rgba(0, 0, 0, 0.06);
-  border-radius: 10px;
-  padding: 8px 14px;
-}
-.sync-restore-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin: 14px 0 4px;
-  flex-wrap: wrap;
-}
-.sync-restore-input {
-  flex: 1;
-  min-width: 0;
-  font-family: inherit;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+.settings-toggle[aria-checked="true"] { background: var(--good); }
+.settings-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
   background: #fff;
-  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 0.18s ease;
 }
-.sync-restore-input:focus { outline: 2px solid var(--accent-2); outline-offset: 1px; }
+.settings-toggle[aria-checked="true"] .settings-toggle-knob { transform: translateX(20px); }
 
 /* ---------- Win screen (festive full-screen celebration) ---------- */
 .win-overlay {
