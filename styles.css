@@ -308,7 +308,14 @@ body {
 }
 #screen-game::before {
   content: "";
-  position: fixed;
+  /* absolute, not fixed: this is purely a decorative vignette scoped to
+     the game screen (#screen-game is already position:relative) — it
+     never needed to track the viewport. A viewport-fixed gradient layer
+     is a known trigger for a mobile Safari compositing glitch (thin
+     dark "seam" lines flashing across the screen during drags/scroll/
+     animation, right where GPU-composited layer tiles meet), which is
+     exactly what this was causing. */
+  position: absolute;
   inset: 0;
   pointer-events: none;
   background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.28) 100%);
