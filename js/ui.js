@@ -213,9 +213,18 @@ function updateComboBadge(streak) {
   comboBadge.classList.toggle("tier-4", streak >= 15);
 }
 
+// The home screen's page background is a light cream; the game
+// screen's is a dark green felt — one static <meta theme-color> can
+// only ever match one of them, so the OS status bar (and any other
+// chrome that reads this tag) would show a visible seam against
+// whichever screen it doesn't match. Swapping it here keeps it
+// blended with whichever screen is actually showing.
+const THEME_COLORS = { stages: "#f3ecd9", game: "#0e5c34" };
 function showScreen(name) {
   screenStages.classList.toggle("active", name === "stages");
   screenGame.classList.toggle("active", name === "game");
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeColorMeta && THEME_COLORS[name]) themeColorMeta.setAttribute("content", THEME_COLORS[name]);
   if (name === "stages") {
     hintModal.classList.remove("open");
     stuckModal.classList.remove("open");

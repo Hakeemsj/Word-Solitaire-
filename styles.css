@@ -66,32 +66,28 @@ body {
 }
 
 /* ---------- Home screen ---------- */
+/* No separate colored strip — these sit directly on the page's own
+   cream background, same as everything else on this screen, instead
+   of being a distinct dark "bar" competing with it. */
 .home-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin: -24px -16px 0;
-  background: #0e2a2f;
-  border-bottom: 3px solid rgba(0, 0, 0, 0.35);
-  padding: 14px 16px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-  position: sticky;
-  top: 0;
-  z-index: 200000;
+  margin: 0 0 20px;
 }
 .home-coins, .home-hearts {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
+  background: linear-gradient(160deg, var(--card-bg), var(--card-bg-2));
   padding: 6px 10px;
   border-radius: 999px;
   font-weight: 800;
   font-size: 1rem;
-  color: var(--white);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  color: var(--ink);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-soft);
 }
 .home-coin-icon, .home-hearts .heart-icon { width: 22px; height: 22px; flex-shrink: 0; }
 .home-add-btn {
@@ -110,7 +106,6 @@ body {
   justify-content: center;
   margin-left: 2px;
 }
-.home-hearts { color: var(--accent); }
 .home-hearts.empty { color: var(--bad); }
 .home-hearts.empty .heart-icon { animation: heartPulse 1s ease-in-out infinite; }
 @keyframes heartPulse {
@@ -123,12 +118,14 @@ body {
   min-width: 44px;
   min-height: 44px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--card-border);
+  background: linear-gradient(160deg, var(--card-bg), var(--card-bg-2));
+  color: var(--ink);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  box-shadow: var(--shadow-soft);
 }
 .home-settings-btn svg { width: 22px; height: 22px; }
 
