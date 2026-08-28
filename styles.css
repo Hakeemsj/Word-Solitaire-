@@ -318,7 +318,7 @@ body {
 
 .game-header {
   position: relative;
-  max-width: 980px;
+  max-width: 600px;
   margin: 0 auto 16px;
   display: flex;
   align-items: center;
@@ -440,7 +440,7 @@ body {
 /* ----- Top row: moves badge + waste/stock ----- */
 .table-top {
   position: relative;
-  max-width: 980px;
+  max-width: 600px;
   margin: 0 auto 26px;
   display: flex;
   align-items: flex-start;
@@ -690,7 +690,7 @@ body {
 
 /* ----- Foundations ----- */
 .foundations {
-  max-width: 980px;
+  max-width: 600px;
   margin: 0 auto 26px;
   display: grid;
   grid-template-columns: repeat(var(--foundation-slots, 4), var(--card-w, 84px));
@@ -787,7 +787,7 @@ body {
 
 /* ----- Tableau ----- */
 .tableau {
-  max-width: 980px;
+  max-width: 600px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(var(--tableau-cols, 4), var(--card-w, 84px));
