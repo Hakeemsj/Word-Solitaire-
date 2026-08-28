@@ -335,19 +335,19 @@ function setupDevPanel() {
   });
 }
 
-/* Cards are always sized for the widest board (5 columns), so the same
-   card is the same size on every stage — a 3-column stage just leaves
-   the leftover width empty instead of stretching its cards bigger.
-   Only the grid itself (--tableau-cols) follows the stage's real
-   column count; the card-size math always divides by the 5-column
-   reference width. */
-const SIZE_REFERENCE_COLUMNS = 5;
-
+/* Cards fill the actual board width for THIS stage's own column count
+   (3, 4, or 5 — see js/stageConfig.js), instead of always being sized
+   as if the board had 5 columns. Sizing for a fixed 5-column reference
+   used to keep card size identical across every stage, but it meant a
+   3- or 4-column stage (most of them — 5 is the max) left a whole
+   extra column's worth of width, and the card size that comes with
+   using it, sitting empty — cards ended up noticeably smaller and
+   harder to grab than the screen had room for. */
 function updateCardMetrics() {
   const s = Game.getState();
   const columns = (s && s.tableau && s.tableau.length) || 4;
   const w = tableauEl.clientWidth || window.innerWidth - 16;
-  const divisor = (5 * SIZE_REFERENCE_COLUMNS - 1) / 4; // always sized as if there were 5 columns, edge to edge
+  const divisor = (5 * columns - 1) / 4; // edge to edge across THIS stage's columns
   const fullW = w / divisor;
   const cardW = fullW * 0.85; // 15% smaller than a full-bleed card
   const cardH = cardW * (108 / 84); // keep the original card proportions
@@ -361,17 +361,17 @@ function updateCardMetrics() {
   root.setProperty("--tableau-cols", columns);
   root.setProperty("--foundation-slots", (s && s.slots && s.slots.length) || 4);
   // The face-down stock (and the Hint button, in the header row above)
-  // always sit above where column 5 WOULD be — not the stage's own
-  // column count — so their position is identical on every stage,
-  // whether it has 3, 4, or 5 columns. The face-up waste (front card +
-  // its 2 peeks) is a separate pile entirely and sits further left,
-  // roughly straddling the column 3/4 boundary, since it's the pile
-  // the player is actively working from. Both are capped as a safety
-  // net against actually running out of row width.
-  const contentWidth = (SIZE_REFERENCE_COLUMNS - 1) * (cardW + gap); // left edge of column 5, not past it
+  // sit just past the last tableau column, so they never overlap the
+  // board. The face-up waste (front card + its 2 peeks) is a separate
+  // pile entirely and sits further left, at the same relative position
+  // (75% of the way to the stock) on every stage regardless of column
+  // count, since it's the pile the player is actively working from.
+  // Both are capped as a safety net against actually running out of
+  // row width.
+  const contentWidth = columns * (cardW + gap); // left edge of the column just past the last one
   const wasteWidth = cardW * 1.64;
   const stockLeft = Math.max(0, Math.min(contentWidth, w - cardW));
-  const wasteCenter = 3 * (cardW + gap);
+  const wasteCenter = contentWidth * 0.75;
   const wasteLeft = Math.max(0, Math.min(wasteCenter - wasteWidth / 2, w - wasteWidth));
   root.setProperty("--stock-left", stockLeft.toFixed(1) + "px");
   root.setProperty("--waste-left", wasteLeft.toFixed(1) + "px");
