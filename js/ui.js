@@ -344,16 +344,17 @@ function updateCardMetrics() {
   root.setProperty("--foundation-slots", (s && s.slots && s.slots.length) || 4);
   // The face-down stock sits just past the last tableau column, so it
   // never overlaps the board. The face-up waste (front card + its 2
-  // peeks) is a separate pile entirely and sits further left, at the
-  // same relative position (75% of the way to the stock) on every
-  // stage regardless of column count, since it's the pile the player
-  // is actively working from. Both are capped as a safety net against
-  // actually running out of row width.
+  // peeks) is a separate pile entirely and sits immediately to the
+  // stock's left, since it's the pile the player is actively working
+  // from — anchored to the stock's OWN (already-clamped) position
+  // rather than a fixed fraction of the row, so the two piles never
+  // overlap regardless of how big a card ends up being on a
+  // narrow-column stage (a 3-column stage's cards run noticeably
+  // bigger than a 5-column stage's — see updateCardMetrics above).
   const contentWidth = columns * (cardW + gap); // left edge of the column just past the last one
   const wasteWidth = cardW * 1.64;
   const stockLeft = Math.max(0, Math.min(contentWidth, w - cardW));
-  const wasteCenter = contentWidth * 0.75;
-  const wasteLeft = Math.max(0, Math.min(wasteCenter - wasteWidth / 2, w - wasteWidth));
+  const wasteLeft = Math.max(0, stockLeft - gap - wasteWidth);
   root.setProperty("--stock-left", stockLeft.toFixed(1) + "px");
   root.setProperty("--waste-left", wasteLeft.toFixed(1) + "px");
   return { cardW, cardH, gap, fontSize, columns };
