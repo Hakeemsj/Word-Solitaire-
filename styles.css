@@ -410,20 +410,21 @@ body {
      screen it had nowhere to go but overlap a neighbor or clip off the
      edge. As a normal item it just wraps to the next line like
      everything else when the row runs out of room. */
+  position: relative;
   margin-left: auto;
+  width: 44px;
   height: 44px;
-  padding: 0 20px;
+  padding: 0;
   box-sizing: border-box;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
   background: linear-gradient(155deg, var(--accent), var(--accent-2));
   color: #3a2200;
   border: none;
-  border-radius: 999px;
-  font-weight: 800;
-  font-size: 0.95rem;
+  border-radius: 50%;
+  font-size: 1.25rem;
   cursor: pointer;
   /* Same soft-shadow language as the rest of the header (not the old
      chunky 3D bevel) — the gold gradient alone is enough to read as the
