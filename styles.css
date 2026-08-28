@@ -706,13 +706,18 @@ body {
   color: #3a2200;
   font-size: 0.65rem;
   font-weight: 800;
-  padding: 4px 11px;
+  /* em, not px: this element's font-size is set inline per-card by
+     updateCardMetrics()/fittedFontSize() and scales with the board's
+     actual card size, so fixed px padding either crowded a small card
+     or looked too tight around a bigger one — em keeps the padding
+     proportional to whatever size the text actually lands at. */
+  padding: 0.34em 0.75em;
   border-radius: 999px 999px 0 0;
   margin-bottom: -2px;
   z-index: 2;
   white-space: nowrap;
   width: 100%;
-  max-width: 112px;
+  max-width: var(--card-w, 84px);
   box-sizing: border-box;
   overflow: hidden;
   text-overflow: ellipsis;
