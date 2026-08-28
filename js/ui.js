@@ -211,19 +211,6 @@ function updateComboBadge(streak) {
   comboBadge.classList.toggle("tier-4", streak >= 15);
 }
 
-/* The Hint button sits at the same fixed spot (above where column 5
-   would be) on every stage — but the header items before it (coins,
-   undo count, combo streak) can vary in width, so it's pinned there
-   only when there's room; otherwise it just follows right after
-   whatever's already there instead of overlapping it. */
-function positionHintBtn() {
-  const header = hintBtn.parentElement;
-  const headerLeft = header.getBoundingClientRect().left;
-  const naturalLeft = comboBadge.getBoundingClientRect().right - headerLeft + 10;
-  const fixedLeft = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--content-width")) || 0;
-  hintBtn.style.left = Math.max(fixedLeft, naturalLeft).toFixed(1) + "px";
-}
-
 function showScreen(name) {
   screenStages.classList.toggle("active", name === "stages");
   screenGame.classList.toggle("active", name === "game");
@@ -355,14 +342,13 @@ function updateCardMetrics() {
   root.setProperty("--card-fs", fontSize.toFixed(1) + "px");
   root.setProperty("--tableau-cols", columns);
   root.setProperty("--foundation-slots", (s && s.slots && s.slots.length) || 4);
-  // The face-down stock (and the Hint button, in the header row above)
-  // sit just past the last tableau column, so they never overlap the
-  // board. The face-up waste (front card + its 2 peeks) is a separate
-  // pile entirely and sits further left, at the same relative position
-  // (75% of the way to the stock) on every stage regardless of column
-  // count, since it's the pile the player is actively working from.
-  // Both are capped as a safety net against actually running out of
-  // row width.
+  // The face-down stock sits just past the last tableau column, so it
+  // never overlaps the board. The face-up waste (front card + its 2
+  // peeks) is a separate pile entirely and sits further left, at the
+  // same relative position (75% of the way to the stock) on every
+  // stage regardless of column count, since it's the pile the player
+  // is actively working from. Both are capped as a safety net against
+  // actually running out of row width.
   const contentWidth = columns * (cardW + gap); // left edge of the column just past the last one
   const wasteWidth = cardW * 1.64;
   const stockLeft = Math.max(0, Math.min(contentWidth, w - cardW));
@@ -370,7 +356,6 @@ function updateCardMetrics() {
   const wasteLeft = Math.max(0, Math.min(wasteCenter - wasteWidth / 2, w - wasteWidth));
   root.setProperty("--stock-left", stockLeft.toFixed(1) + "px");
   root.setProperty("--waste-left", wasteLeft.toFixed(1) + "px");
-  root.setProperty("--content-width", stockLeft.toFixed(1) + "px");
   return { cardW, cardH, gap, fontSize, columns };
 }
 
@@ -402,7 +387,6 @@ function renderGame() {
   statUndos.textContent = s.undosLeft;
   undoBtn.disabled = s.undosLeft <= 0;
   updateComboBadge(s.comboStreak);
-  positionHintBtn();
 
   renderStock(s);
   renderWaste(s, metrics);

@@ -331,7 +331,7 @@ body {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  min-height: 40px;
+  min-height: 44px;
 }
 .icon-btn {
   /* 44x44 is the widely-used minimum touch-target size (WCAG 2.5.5,
@@ -350,35 +350,33 @@ body {
   transition: transform 0.15s ease;
 }
 .icon-btn:hover { transform: translateY(-2px); }
-.stage-pill {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 999px;
-  padding: 8px 18px;
-  font-family: "Baloo 2", sans-serif;
-  font-weight: 700;
-  font-size: 1rem;
-  box-shadow: var(--shadow-soft);
-}
-.coins-badge.small {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 999px;
-  padding: 8px 15px;
-  font-weight: 800;
-  color: var(--accent);
+
+/* The header's pill badges (level, coins, combo) all share one box
+   model — fixed 44px height, centered content, same padding/radius —
+   so they line up on one consistent baseline instead of each sizing
+   itself off its own font-size/padding and drifting a few px apart. */
+.stage-pill,
+.coins-badge.small,
+.combo-badge {
+  height: 44px;
+  padding: 0 16px;
+  box-sizing: border-box;
   display: flex;
-  gap: 6px;
   align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 800;
   box-shadow: var(--shadow-soft);
+  flex-shrink: 0;
 }
+.stage-pill { font-family: "Baloo 2", sans-serif; }
+.coins-badge.small { color: var(--accent); }
 
 .combo-badge {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 999px;
-  padding: 7px 14px;
-  font-weight: 800;
-  font-size: 0.92rem;
   color: rgba(255, 255, 255, 0.55);
-  box-shadow: var(--shadow-soft);
   transition: color 0.15s ease, transform 0.15s ease, background 0.15s ease;
 }
 .combo-badge.active {
@@ -405,18 +403,33 @@ body {
 }
 
 .hint-btn {
-  position: absolute;
-  left: var(--content-width, auto);
-  top: 50%;
-  transform: translateY(-50%);
+  /* A normal flex item in .game-header, same as every other badge in
+     the row — it used to be pinned via position:absolute to a
+     JS-computed offset (so it would line up above the stock pile),
+     but that removed it from flex-wrap's flow entirely: on a narrow
+     screen it had nowhere to go but overlap a neighbor or clip off the
+     edge. As a normal item it just wraps to the next line like
+     everything else when the row runs out of room. */
+  margin-left: auto;
+  height: 44px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   background: linear-gradient(155deg, var(--accent), var(--accent-2));
   color: #3a2200;
   border: none;
-  padding: 10px 18px;
   border-radius: 999px;
   font-weight: 800;
+  font-size: 0.95rem;
   cursor: pointer;
-  box-shadow: 0 3px 0 #b5610a, var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  /* Same soft-shadow language as the rest of the header (not the old
+     chunky 3D bevel) — the gold gradient alone is enough to read as the
+     row's primary action, without looking like it belongs to a
+     different design system. */
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.35);
   transition: transform 0.15s ease;
 }
 .hint-btn:hover:not(:disabled) { transform: translateY(-2px); }
@@ -1122,12 +1135,19 @@ body {
 }
 
 @media (max-width: 480px) {
-  .stage-pill { font-size: 0.88rem; padding: 7px 14px; }
+  .stage-pill,
+  .coins-badge.small,
+  .combo-badge,
+  .hint-btn {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .stage-pill { font-size: 0.88rem; }
   .coins-badge.small { font-size: 0.9rem; }
-  .hint-btn { padding: 9px 14px; font-size: 0.85rem; }
+  .hint-btn { font-size: 0.85rem; }
   .moves-badge { padding: 7px 14px; }
   .moves-value { font-size: 1.1rem; }
-  .combo-badge { font-size: 0.8rem; padding: 6px 10px; }
+  .combo-badge { font-size: 0.8rem; }
   .home-branding { margin-top: 8vh; }
 }
 
