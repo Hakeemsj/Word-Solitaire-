@@ -898,11 +898,13 @@ function renderSlots(s, metrics) {
               <div class="foundation-crown">${crownIcon()}</div>`;
     } else {
       const tagFs = fittedFontSize(f.name, baseFs * 0.6, cardW - 18, 800);
-      const wordFs = fittedFontSize(f.lastWord || "", baseFs * 0.7, cardW - 14, 800);
+      // The delivered word is the card's whole point, so it gets to be
+      // the dominant thing on it — sized well past the tag/progress
+      // text, same fit-then-shrink logic so a long word still fits.
+      const wordFs = fittedFontSize(f.lastWord || "", baseFs * 1.2, cardW - 14, 800);
       tag = `<div class="foundation-tag" style="font-size:${tagFs.toFixed(1)}px">${f.name}</div>`;
       body = `<div class="foundation-last-word" style="font-size:${wordFs.toFixed(1)}px">${f.lastWord || ""}</div>
-              <div class="foundation-progress big">${f.collected}/${f.target}</div>
-              ${complete ? `<div class="foundation-crown gold">${crownIcon()}</div>` : ""}`;
+              ${complete ? `<div class="foundation-crown gold">${crownIcon()}</div>` : `<div class="foundation-progress big">${f.collected}/${f.target}</div>`}`;
     }
 
     const cardCls = "card foundation-card" + (f && !complete ? " active-cat" : "");
