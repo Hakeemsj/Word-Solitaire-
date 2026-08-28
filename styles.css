@@ -419,6 +419,7 @@ body {
 .round-action-btn { position: relative; font-size: 1rem; display: flex; align-items: center; justify-content: center; }
 .round-action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .undo-icon { width: 20px; height: 20px; }
+.game-settings-icon { width: 20px; height: 20px; }
 .action-badge {
   position: absolute;
   top: -4px;
@@ -932,6 +933,7 @@ body {
   text-align: left;
 }
 .settings-row-label { font-weight: 700; color: var(--ink); }
+.settings-back-btn { width: 100%; margin: 4px 0 14px; }
 .settings-divider {
   border: none;
   border-top: 1px solid rgba(0, 0, 0, 0.1);

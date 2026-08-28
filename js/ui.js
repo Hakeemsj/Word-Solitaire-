@@ -65,7 +65,7 @@ const statCoins = el("#stat-coins");
 const statUndos = el("#stat-undos");
 const hintBtn = el("#hint-btn");
 const undoBtn = el("#undo-btn");
-const backBtn = el("#back-btn");
+const gameSettingsBtn = el("#game-settings-btn");
 const toastEl = el("#toast");
 
 const wasteEl = el("#waste");
@@ -89,7 +89,6 @@ const buyMovesBtn = el("#buy-moves-btn");
 const restartBtn = el("#restart-btn");
 const giveUpBtn = el("#give-up-btn");
 
-const soundToggleGame = el("#sound-toggle-game");
 const comboBadge = el("#combo-badge");
 
 const winModal = el("#win-modal");
@@ -103,6 +102,7 @@ const settingsModal = el("#settings-modal");
 const settingsModalBox = el(".modal", settingsModal);
 const settingsSoundBtn = el("#settings-sound-btn");
 const settingsCloseBtn = el("#settings-close-btn");
+const settingsBackBtn = el("#settings-back-btn");
 const syncStatusText = el("#sync-status-text");
 const syncCodeValue = el("#sync-code-value");
 const syncCopyBtn = el("#sync-copy-btn");
@@ -155,14 +155,6 @@ function showToast(html, kind) {
   toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1400);
 }
 
-function updateSoundButtons() {
-  soundToggleGame.textContent = Sound.isOn() ? "🔊" : "🔇";
-}
-soundToggleGame.addEventListener("click", () => {
-  Sound.toggle();
-  updateSoundButtons();
-});
-updateSoundButtons();
 
 // Warm the audio pipeline up on the very first tap anywhere on the page —
 // well before the player ever drags a card — so it's already fully awake
@@ -1039,11 +1031,6 @@ hintSpeakBtn.addEventListener("click", () => {
   hintSpeakBtn.classList.add("speaking");
 });
 
-backBtn.addEventListener("click", () => {
-  showScreen("stages");
-  renderHome();
-});
-
 buyMovesBtn.addEventListener("click", () => {
   Game.buyMoves();
   renderGame();
@@ -1117,16 +1104,25 @@ function refreshSyncUI() {
   syncCopyBtn.disabled = !configured;
 }
 
-homeSettingsBtn.addEventListener("click", () => {
+function openSettings() {
   updateSettingsSoundBtn();
   refreshSyncUI();
+  settingsBackBtn.style.display = screenGame.classList.contains("active") ? "" : "none";
   setModalOpen(settingsModal, settingsModalBox, true);
-});
+}
+
+homeSettingsBtn.addEventListener("click", openSettings);
+gameSettingsBtn.addEventListener("click", openSettings);
 
 settingsSoundBtn.addEventListener("click", () => {
   Sound.toggle();
-  updateSoundButtons();
   updateSettingsSoundBtn();
+});
+
+settingsBackBtn.addEventListener("click", () => {
+  setModalOpen(settingsModal, settingsModalBox, false);
+  showScreen("stages");
+  renderHome();
 });
 
 settingsCloseBtn.addEventListener("click", () => {
