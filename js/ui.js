@@ -103,6 +103,7 @@ const settingsModalBox = el(".modal", settingsModal);
 const settingsSoundBtn = el("#settings-sound-btn");
 const settingsCloseBtn = el("#settings-close-btn");
 const settingsBackBtn = el("#settings-back-btn");
+const settingsHowToPlayBtn = el("#settings-howtoplay-btn");
 
 /* Modal focus management: when a modal opens, focus moves INTO it (the
    inner tabindex="-1" container, not any specific button — several of
@@ -219,6 +220,7 @@ function showScreen(name) {
     stuckModal.classList.remove("open");
     winModal.classList.remove("open");
     modalReturnFocus = null;
+    if (typeof Tutorial !== "undefined") Tutorial.cancel();
   }
 }
 
@@ -275,6 +277,7 @@ function startStage(stageId) {
   selection = null;
   showScreen("game");
   renderGame();
+  if (typeof Tutorial !== "undefined") Tutorial.maybeStart(Game.getState());
 }
 
 function openStage(stageId) {
@@ -428,10 +431,13 @@ function renderGame() {
       Sound.win();
     }
   }
+
+  if (typeof Tutorial !== "undefined") Tutorial.onRender(s);
 }
 
 function makeCardFace(card, extraClass, s, metrics) {
   const div = document.createElement("div");
+  div.dataset.cardId = card.id; // lets js/tutorial.js find a specific card's element to spotlight
   div.className = "card face-up" + (card.isMarker ? " marker-card" : "") + (extraClass ? " " + extraClass : "");
   const cardW = (metrics && metrics.cardW) || 84;
   const maxTextWidth = cardW - 16;
@@ -1082,6 +1088,11 @@ settingsBackBtn.addEventListener("click", () => {
   setModalOpen(settingsModal, settingsModalBox, false);
   showScreen("stages");
   renderHome();
+});
+
+settingsHowToPlayBtn.addEventListener("click", () => {
+  setModalOpen(settingsModal, settingsModalBox, false);
+  if (typeof Tutorial !== "undefined") Tutorial.replayIntro();
 });
 
 settingsCloseBtn.addEventListener("click", () => {

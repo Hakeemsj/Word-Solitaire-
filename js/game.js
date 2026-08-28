@@ -361,6 +361,7 @@ const Game = (function () {
 
     state = {
       stageId,
+      tutorial: !!config.tutorial,
       categoryPool,
       wordToCategory,
       slots: new Array(config.slots).fill(null),

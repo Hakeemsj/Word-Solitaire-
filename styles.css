@@ -973,7 +973,9 @@ body {
   text-align: left;
 }
 .settings-row-label { font-weight: 700; color: var(--ink); }
-.settings-back-btn { width: 100%; margin: 24px 0 14px; }
+.settings-back-btn { width: 100%; margin: 24px 0 0; }
+.settings-back-btn + .settings-back-btn { margin-top: 10px; }
+.settings-back-btn:last-of-type { margin-bottom: 14px; }
 
 .settings-toggle {
   position: relative;
@@ -1000,6 +1002,72 @@ body {
   transition: transform 0.18s ease;
 }
 .settings-toggle[aria-checked="true"] .settings-toggle-knob { transform: translateX(20px); }
+
+/* ---------- Tutorial: intro slides ---------- */
+.tutorial-intro-emoji { font-size: 2.6rem; line-height: 1; margin-bottom: 4px; }
+.tutorial-intro-dots { display: flex; justify-content: center; gap: 6px; margin: 16px 0; }
+.tutorial-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(0, 0, 0, 0.15); }
+.tutorial-dot.active { background: var(--accent-2); }
+
+/* ---------- Tutorial: interactive coach marks ---------- */
+.tutorial-coach {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+}
+.tutorial-coach.open { display: block; }
+.tutorial-spotlight {
+  position: fixed;
+  display: none;
+  border-radius: 14px;
+  /* The huge spread paints everywhere OUTSIDE this box, dimming the
+     rest of the board while leaving the target itself untouched — a
+     spotlight without needing a separate mask/cutout element. */
+  box-shadow: 0 0 0 2px var(--accent), 0 0 0 9999px rgba(6, 12, 14, 0.62);
+  transition: left 0.25s ease, top 0.25s ease, width 0.25s ease, height 0.25s ease;
+  animation: tutorialPulse 1.6s ease-in-out infinite;
+}
+@keyframes tutorialPulse {
+  0%, 100% { box-shadow: 0 0 0 2px var(--accent), 0 0 0 9999px rgba(6, 12, 14, 0.62); }
+  50% { box-shadow: 0 0 0 5px var(--accent), 0 0 0 9999px rgba(6, 12, 14, 0.62); }
+}
+.tutorial-bubble {
+  position: fixed;
+  max-width: 260px;
+  background: linear-gradient(165deg, var(--card-bg), var(--card-bg-2));
+  color: var(--ink);
+  border-radius: 14px;
+  padding: 12px 16px;
+  box-shadow: var(--shadow-deep);
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-align: center;
+  transition: left 0.25s ease, top 0.25s ease;
+}
+.tutorial-bubble.no-target {
+  position: fixed;
+  left: 50% !important;
+  bottom: 100px;
+  top: auto !important;
+  transform: translateX(-50%);
+}
+.tutorial-bubble p { margin: 0; }
+.tutorial-skip-btn {
+  position: fixed;
+  top: max(14px, env(safe-area-inset-top));
+  right: 14px;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  pointer-events: auto;
+}
 
 /* ---------- Win screen (festive full-screen celebration) ---------- */
 .win-overlay {

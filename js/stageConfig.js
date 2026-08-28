@@ -97,12 +97,21 @@ function makeGroupCursor(allGroupIds) {
   };
 }
 
+/* Stages 1-5 are the difficulty on-ramp: 1 is a short, guided tutorial
+   level (small pool, everything easy to reach — see js/tutorial.js),
+   2-5 step up gradually in slot count / pool size / words-per-group,
+   and stage 6 picks up exactly where the old stage 1 used to start.
+   Each explicitly overrides `pool` (collector-card pool size) and
+   `wordsPerGroup` here rather than relying on the defaults every
+   later stage uses, so this on-ramp is fully self-contained and can
+   never change stage 6+'s difficulty — see poolTargetFor() and
+   DEFAULT_WORDS_PER_GROUP_BY_STAGE below for why. */
 const CURATED_STAGES_BASE = [
-  { id: 1, slots: 4, groups: ["syn_happy", "syn_big", "ant_temperature", "ant_moisture", "ant_speed", "ant_difficulty"] },
-  { id: 2, slots: 3, groups: ["ant_fullness", "syn_smart", "partof_body", "activity_beach", "context_airport"] },
-  { id: 3, slots: 4, groups: ["syn_big", "syn_smart", "ant_speed", "ant_moisture", "cat_furniture", "cat_kitchen"] },
-  { id: 4, slots: 5, groups: ["syn_happy", "activity_beach", "ant_difficulty", "func_actions", "cat_transport", "cat_sports", "ant_price", "partof_car", "concept_time"] },
-  { id: 5, slots: 4, groups: ["concept_money", "syn_big", "cat_emotions", "ant_temperature", "ant_price", "ant_state", "cat_weather"] },
+  { id: 1, slots: 3, pool: 3, wordsPerGroup: 3, stockReserveRatio: 0.4, tableauMarkerRatio: 0.7, tutorial: true, groups: ["cat_furniture", "cat_fruits", "cat_weather"] },
+  { id: 2, slots: 3, pool: 5, wordsPerGroup: 3, groups: ["ant_fullness", "syn_smart", "partof_body", "activity_beach", "context_airport"] },
+  { id: 3, slots: 3, pool: 6, wordsPerGroup: 3, groups: ["syn_big", "syn_smart", "ant_speed", "ant_moisture", "cat_furniture", "cat_kitchen"] },
+  { id: 4, slots: 4, pool: 7, wordsPerGroup: 4, groups: ["syn_happy", "activity_beach", "ant_difficulty", "func_actions", "cat_transport", "cat_sports", "ant_price"] },
+  { id: 5, slots: 4, pool: 7, wordsPerGroup: 4, groups: ["concept_money", "syn_big", "cat_emotions", "ant_temperature", "ant_price", "ant_state", "cat_weather"] },
   { id: 6, slots: 4, groups: ["context_airport", "ant_strength", "ant_state", "concept_time", "context_restaurant", "partof_house", "syn_smart"] },
   { id: 7, slots: 5, groups: ["partof_car", "ant_speed", "ant_temperature", "func_security", "cat_furniture", "cat_jobs", "activity_morning", "ant_fullness"], hints: 2 },
   { id: 8, slots: 4, groups: ["partof_body", "ant_fullness", "cat_fruits", "concept_time", "activity_morning", "func_actions"], hints: 2 },
@@ -129,7 +138,7 @@ const STAGES = (function () {
 
   const curated = CURATED_STAGES_BASE.map((stage) => {
     const slots = clampSlots(stage.slots);
-    const target = poolTargetFor(slots);
+    const target = stage.pool || poolTargetFor(slots);
     const groups = stage.groups.slice();
     if (groups.length < target) {
       groups.push(...cursor.take(target - groups.length, groups));
@@ -235,5 +244,6 @@ function resolveStageConfig(stageId) {
     wordsPerGroup: entry.wordsPerGroup || defaultWordsPerGroupFor(entry.id),
     stockReserveRatio: entry.stockReserveRatio || DEFAULT_STOCK_RESERVE_RATIO,
     tableauMarkerRatio: entry.tableauMarkerRatio ?? DEFAULT_TABLEAU_MARKER_RATIO,
+    tutorial: !!entry.tutorial,
   };
 }
