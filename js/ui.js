@@ -99,6 +99,16 @@ const winTitle = el("#win-title");
 const winReward = el("#win-reward");
 const winMovesUsed = el("#win-moves-used");
 
+const settingsModal = el("#settings-modal");
+const settingsModalBox = el(".modal", settingsModal);
+const settingsSoundBtn = el("#settings-sound-btn");
+const settingsCloseBtn = el("#settings-close-btn");
+const syncStatusText = el("#sync-status-text");
+const syncCodeValue = el("#sync-code-value");
+const syncCopyBtn = el("#sync-copy-btn");
+const syncRestoreInput = el("#sync-restore-input");
+const syncRestoreBtn = el("#sync-restore-btn");
+
 /* Modal focus management: when a modal opens, focus moves INTO it (the
    inner tabindex="-1" container, not any specific button — several of
    the buttons in here can be disabled depending on state, e.g.
@@ -128,6 +138,8 @@ document.addEventListener("keydown", (e) => {
     renderGame();
   } else if (noHeartsModal.classList.contains("open")) {
     setModalOpen(noHeartsModal, noHeartsModalBox, false);
+  } else if (settingsModal.classList.contains("open")) {
+    setModalOpen(settingsModal, settingsModalBox, false);
   }
 });
 const nextStageBtn = el("#next-stage-btn");
@@ -1079,10 +1091,85 @@ homeAddBtn.addEventListener("click", () => {
   showToast("Coin shop coming soon!", "good");
 });
 
+function updateSettingsSoundBtn() {
+  settingsSoundBtn.textContent = Sound.isOn() ? "🔊 On" : "🔇 Off";
+}
+
+function syncStatusLabel(status) {
+  switch (status) {
+    case "connecting":
+      return "Connecting…";
+    case "synced":
+      return "Synced ✓";
+    case "error":
+      return "Couldn't reach the cloud — this device's progress is still saved locally.";
+    case "not-configured":
+    default:
+      return "Cloud sync not set up yet.";
+  }
+}
+
+function refreshSyncUI() {
+  const configured = typeof CloudSync !== "undefined" && CloudSync.isConfigured();
+  syncCodeValue.textContent = configured ? CloudSync.getCode() : "--------";
+  syncStatusText.textContent = configured ? syncStatusLabel(CloudSync.getStatus()) : syncStatusLabel("not-configured");
+  syncRestoreBtn.disabled = !configured;
+  syncCopyBtn.disabled = !configured;
+}
+
 homeSettingsBtn.addEventListener("click", () => {
+  updateSettingsSoundBtn();
+  refreshSyncUI();
+  setModalOpen(settingsModal, settingsModalBox, true);
+});
+
+settingsSoundBtn.addEventListener("click", () => {
   Sound.toggle();
   updateSoundButtons();
+  updateSettingsSoundBtn();
 });
+
+settingsCloseBtn.addEventListener("click", () => {
+  setModalOpen(settingsModal, settingsModalBox, false);
+});
+
+syncCopyBtn.addEventListener("click", async () => {
+  const code = syncCodeValue.textContent;
+  try {
+    await navigator.clipboard.writeText(code);
+    showToast("Code copied!", "good");
+  } catch (e) {
+    showToast("Couldn't copy — select and copy it manually", "bad");
+  }
+});
+
+syncRestoreBtn.addEventListener("click", async () => {
+  if (typeof CloudSync === "undefined" || !CloudSync.isConfigured()) {
+    showToast("Cloud sync isn't set up yet", "bad");
+    return;
+  }
+  const code = syncRestoreInput.value.trim();
+  if (!code) return;
+  syncRestoreBtn.disabled = true;
+  const result = await CloudSync.restoreFromCode(code);
+  syncRestoreBtn.disabled = false;
+  if (result.ok) {
+    syncRestoreInput.value = "";
+    refreshSyncUI();
+    renderHome();
+    showToast("Progress restored!", "good");
+  } else if (result.reason === "not-found") {
+    showToast("No progress found for that code", "bad");
+  } else {
+    showToast("Couldn't restore — try again", "bad");
+  }
+});
+
+if (typeof CloudSync !== "undefined") {
+  CloudSync.setOnStatusChange(() => {
+    if (settingsModal.classList.contains("open")) refreshSyncUI();
+  });
+}
 
 refillHeartsBtn.addEventListener("click", () => {
   const save = Game.refillLives();
