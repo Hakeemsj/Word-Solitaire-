@@ -984,13 +984,14 @@ function renderTableau(s, metrics) {
         labelEl.style.fontSize = labelFs.toFixed(1) + "px";
         labelEl.textContent = card.word;
         labelEl.style.top = top + "px";
-        // Matches clusterStep exactly (not a fixed CSS fraction of card
-        // height) so the label always covers precisely the sliver of
-        // the card behind it that its own spacing reveals — a fixed
-        // height here drifts out of sync any time clusterStep changes,
-        // which is exactly what made labels look like they were
-        // overlapping their neighbors instead of cleanly stacked.
-        labelEl.style.height = clusterStep.toFixed(1) + "px";
+        // Full card height (not shrunk to clusterStep) — same as every
+        // back card and the front card itself. A buried card in a real
+        // stack doesn't get physically smaller; it's just as tall as
+        // any other card, and the next card's higher z-index naturally
+        // hides everything below where that next card starts. Shrinking
+        // the label to fit the visible sliver was what made it read as
+        // a separate floating tab instead of an actual card peeking out
+        // from behind the one in front of it.
         labelEl.style.zIndex = 100 + idx;
         if (selection && selection.card.id === card.id) labelEl.classList.add("tap-selected");
         attachDragOrHint(labelEl, card, { type: "tableau", colIdx });

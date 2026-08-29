@@ -892,11 +892,13 @@ body {
   position: absolute;
   left: 0;
   width: var(--card-w, 84px);
-  /* height is set inline per-label in js/ui.js, matched exactly to
-     clusterStep so it covers precisely the sliver its own spacing
-     reveals — never a fixed fraction here, which drifted out of sync
-     with clusterStep and made labels look like they overlapped their
-     neighbors. */
+  /* Full card height, same as every other card in the pile (back or
+     front) — it's a real card, not a shrunken tab. The next card in
+     the stack sits at a higher z-index and starts partway down this
+     one, so it naturally covers everything below it; only the top
+     sliver stays visible, exactly like the backs stacked above it. */
+  height: var(--card-h, 108px);
+  box-sizing: border-box;
   /* Same gradient + border weight as an actual face-up card (.card.
      face-up), not a flat white strip — this really is just a card,
      peeking out from under the one in front of it. */
@@ -905,8 +907,9 @@ body {
   border: 2px solid var(--card-border);
   border-radius: 12px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  padding-top: 15%;
   font-size: calc(var(--card-fs, 0.82rem) * 0.85);
   font-weight: 800;
   letter-spacing: 0.01em;
