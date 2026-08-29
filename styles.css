@@ -897,23 +897,24 @@ body {
      reveals — never a fixed fraction here, which drifted out of sync
      with clusterStep and made labels look like they overlapped their
      neighbors. */
-  background: rgba(255, 255, 255, 0.92);
+  /* Same gradient + border weight as an actual face-up card (.card.
+     face-up), not a flat white strip — this really is just a card,
+     peeking out from under the one in front of it. */
+  background: linear-gradient(160deg, var(--card-bg), var(--card-bg-2));
   color: var(--ink);
-  border: 1px solid var(--card-border);
-  /* Rounded on every corner, like an actual mini card, rather than
-     flat-bottomed — matches the rest of the stack's own card shapes
-     instead of reading as a separate strip glued onto the pile. */
+  border: 2px solid var(--card-border);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: calc(var(--card-fs, 0.82rem) * 0.85);
   font-weight: 800;
+  letter-spacing: 0.01em;
   text-transform: capitalize;
   white-space: nowrap;
   cursor: grab;
   touch-action: none;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16), 0 4px 8px rgba(0, 0, 0, 0.12);
 }
 .cluster-label.hintable { cursor: help; box-shadow: 0 0 0 2px var(--accent); }
 .cluster-label.dragging { cursor: grabbing; }
