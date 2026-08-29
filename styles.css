@@ -893,7 +893,11 @@ body {
   position: absolute;
   left: 0;
   width: var(--card-w, 84px);
-  height: calc(var(--card-h, 108px) * 0.26);
+  /* height is set inline per-label in js/ui.js, matched exactly to
+     clusterStep so it covers precisely the sliver its own spacing
+     reveals — never a fixed fraction here, which drifted out of sync
+     with clusterStep and made labels look like they overlapped their
+     neighbors. */
   background: rgba(255, 255, 255, 0.92);
   color: var(--ink);
   border: 1px solid var(--card-border);

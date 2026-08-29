@@ -984,6 +984,13 @@ function renderTableau(s, metrics) {
         labelEl.style.fontSize = labelFs.toFixed(1) + "px";
         labelEl.textContent = card.word;
         labelEl.style.top = top + "px";
+        // Matches clusterStep exactly (not a fixed CSS fraction of card
+        // height) so the label always covers precisely the sliver of
+        // the card behind it that its own spacing reveals — a fixed
+        // height here drifts out of sync any time clusterStep changes,
+        // which is exactly what made labels look like they were
+        // overlapping their neighbors instead of cleanly stacked.
+        labelEl.style.height = clusterStep.toFixed(1) + "px";
         labelEl.style.zIndex = 100 + idx;
         if (selection && selection.card.id === card.id) labelEl.classList.add("tap-selected");
         attachDragOrHint(labelEl, card, { type: "tableau", colIdx });
