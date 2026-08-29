@@ -701,7 +701,6 @@ body {
   font-weight: 800;
   color: var(--ink);
 }
-.waste-peek.review .waste-peek-word { color: var(--accent-2); }
 .waste-peek.marker { background: linear-gradient(160deg, #fff3d0, #ffe19a); border-color: var(--accent-2); }
 .waste-peek.marker .waste-peek-word { color: #7a3d00; font-weight: 900; }
 
@@ -901,7 +900,10 @@ body {
   background: rgba(255, 255, 255, 0.92);
   color: var(--ink);
   border: 1px solid var(--card-border);
-  border-radius: 8px 8px 0 0;
+  /* Rounded on every corner, like an actual mini card, rather than
+     flat-bottomed — matches the rest of the stack's own card shapes
+     instead of reading as a separate strip glued onto the pile. */
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -911,9 +913,8 @@ body {
   white-space: nowrap;
   cursor: grab;
   touch-action: none;
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.18);
 }
-.cluster-label.review { color: var(--accent-2); }
 .cluster-label.hintable { cursor: help; box-shadow: 0 0 0 2px var(--accent); }
 .cluster-label.dragging { cursor: grabbing; }
 .cluster-label.marker { background: linear-gradient(160deg, #fff3d0, #ffe19a); color: #7a3d00; border-color: var(--accent-2); font-weight: 900; }
