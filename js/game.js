@@ -497,6 +497,18 @@ const Game = (function () {
     const cluster = fromWaste ? [card] : state.tableau[fromCol].slice(state.tableau[fromCol].length - clusterSize);
     const hasMarker = cluster.some((c) => c.isMarker);
 
+    // `card` only ever supplies which category to credit — everything
+    // actually delivered comes from `cluster`, derived independently
+    // from the column's CURRENT front. Normally those always agree,
+    // but a caller can pass a stale `card` (e.g. a leftover tap-
+    // selection from before an unrelated drag moved the board), in
+    // which case category and cluster have silently drifted apart:
+    // without this check, a card from a completely different category
+    // gets delivered and credited to `card`'s category instead of its
+    // own. If `card` isn't actually IN the cluster being delivered,
+    // bail rather than credit the wrong category.
+    if (!cluster.some((c) => c.id === card.id)) return getState();
+
     // Precise targeting cuts both ways: a collector needs an OPEN slot
     // (any one — that's the player's choice), but a plain word must be
     // dropped on the exact slot its own category already lives in, not

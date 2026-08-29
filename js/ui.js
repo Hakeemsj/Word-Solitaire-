@@ -781,6 +781,13 @@ function attachDragOrHint(cardEl, card, source) {
       return;
     }
 
+    // A real drag, not a tap — if some OTHER card was still tap-selected
+    // from before this drag started, that selection is now stale (the
+    // board it pointed at is about to change) and must not survive to
+    // drive a later tap. Every other path that consumes/replaces the
+    // selection already clears it; the drag path was the one gap.
+    selection = null;
+
     const result = resolveDrop(card, source, e.clientX, e.clientY);
     if (result.success) {
       const st = Game.getState();
@@ -850,6 +857,11 @@ function renderStock(s) {
       ? `<span class="stock-recycle">↺</span>`
       : "";
   pile.addEventListener("click", () => {
+    // Drawing can push the tap-selected card out of the waste pile's
+    // front position (still in the pile, just no longer playable from
+    // there) — every other action that changes what's selectable
+    // clears the selection, so this should too.
+    selection = null;
     Game.drawStock();
     Sound.flip();
     Haptics.flip();
