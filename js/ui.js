@@ -451,7 +451,7 @@ function makeCardFace(card, extraClass, s, metrics) {
     div.innerHTML = `
       <div class="marker-progress">${cat.collected}/${cat.target}</div>
       <span class="card-word" style="font-size:${fs.toFixed(1)}px">${card.word}</span>
-      <span class="marker-crown">${wMarkIcon()}</span>
+      <span class="marker-crown">${wMarkIcon(cat.type === "Antonym" ? "antonym" : "")}</span>
     `;
   } else {
     const baseFs = (metrics && metrics.fontSize) || 16;
@@ -929,7 +929,7 @@ function renderSlots(s, metrics) {
       const nameFs = fittedFontSize(f.name, baseFs * 0.68, cardW - 14, 800);
       body = `<div class="foundation-name" style="font-size:${nameFs.toFixed(1)}px">${f.name}</div>
               <div class="foundation-progress">${f.collected}/${f.target}</div>
-              <div class="foundation-crown">${wMarkIcon()}</div>`;
+              <div class="foundation-crown">${wMarkIcon(f.type === "Antonym" ? "antonym" : "")}</div>`;
     } else {
       const tagFs = fittedFontSize(f.name, baseFs * 0.6, cardW - 18, 800);
       // The delivered word is the card's whole point, so it gets to be
@@ -938,7 +938,7 @@ function renderSlots(s, metrics) {
       const wordFs = fittedFontSize(f.lastWord || "", baseFs * 1.2, cardW - 14, 800);
       tag = `<div class="foundation-tag" style="font-size:${tagFs.toFixed(1)}px">${f.name}</div>`;
       body = `<div class="foundation-last-word" style="font-size:${wordFs.toFixed(1)}px">${f.lastWord || ""}</div>
-              ${complete ? `<div class="foundation-crown gold">${wMarkIcon()}</div>` : `<div class="foundation-progress big">${f.collected}/${f.target}</div>`}`;
+              ${complete ? `<div class="foundation-crown gold">${wMarkIcon(f.type === "Antonym" ? "antonym" : "")}</div>` : `<div class="foundation-progress big">${f.collected}/${f.target}</div>`}`;
     }
 
     const cardCls = "card foundation-card" + (f && !complete ? " active-cat" : "");
