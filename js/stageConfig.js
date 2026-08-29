@@ -127,10 +127,20 @@ const CURATED_STAGES_BASE = [
 /* Stage 1-500 assembly: the 15 curated stages keep their original,
    hand-picked groups as a base and get topped up (via the shared
    cursor) to the new pool-per-slot target; stages 16-500 are generated
-   from scratch the same way, cycling slot count through 3/4/5 so the
-   board shape stays varied rather than climbing in a straight line. */
+   from scratch, cycling slot count through 3/4/5 so the board shape
+   stays varied rather than climbing in a straight line. */
 const GENERATED_STAGE_COUNT = 485; // 15 curated + 485 generated = 500 stages total
 const SLOTS_CYCLE = [3, 4, 5, 4, 3, 5];
+
+// Generated stages (16+) mix in review on top of new content, rather
+// than only ever advancing through fresh groups: ~20% of each stage's
+// pool is pulled back from whatever showed up in the last few stages,
+// so a category can resurface within as little as REVIEW_WINDOW_STAGES
+// levels instead of only once per full ~13-stage lap of the library.
+// The curated on-ramp (1-15) is untouched by this — it keeps its own
+// hand-picked groups exactly as before.
+const REVIEW_RATIO = 0.2;
+const REVIEW_WINDOW_STAGES = 3;
 
 const STAGES = (function () {
   const allGroupIds = RELATIONS.map((r) => r.id);
@@ -147,15 +157,38 @@ const STAGES = (function () {
   });
 
   const generated = [];
+  // Seeded with the tail of the curated run so stage 16 already has
+  // real review candidates from stages 13-15, instead of starting cold.
+  let recentWindow = curated.slice(-REVIEW_WINDOW_STAGES).map((s) => s.groups);
   for (let i = 0; i < GENERATED_STAGE_COUNT; i++) {
     const slots = SLOTS_CYCLE[i % SLOTS_CYCLE.length];
     const target = poolTargetFor(slots);
+    const reviewTarget = Math.round(target * REVIEW_RATIO);
+
+    // Recently-used groups (last REVIEW_WINDOW_STAGES stages), oldest
+    // first, deduplicated — the review candidates for this stage.
+    const recentPool = Array.from(new Set(recentWindow.flat()));
+    const newCount = Math.max(0, target - reviewTarget);
+    const newGroups = cursor.take(newCount, []);
+    const reviewGroups = recentPool.filter((gid) => !newGroups.includes(gid)).slice(0, reviewTarget);
+
+    let groups = newGroups.concat(reviewGroups);
+    // The review window won't have enough distinct groups yet on the
+    // very first few generated stages — top up with fresh ones instead
+    // of shipping an undersized pool.
+    if (groups.length < target) {
+      groups = groups.concat(cursor.take(target - groups.length, groups));
+    }
+
     generated.push({
       id: 15 + i + 1,
       slots,
-      groups: cursor.take(target, []),
+      groups,
       hints: 2,
     });
+
+    recentWindow.push(groups);
+    if (recentWindow.length > REVIEW_WINDOW_STAGES) recentWindow.shift();
   }
 
   return curated.concat(generated);
