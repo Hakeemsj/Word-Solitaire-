@@ -381,6 +381,19 @@ function renderGame() {
   const s = Game.getState();
   if (!s) return;
 
+  // A drag's flying/ghost element normally lives as a direct child of
+  // <body> only transiently — appended when the drag starts, removed
+  // once the drop animation finishes. If that removal was ever skipped
+  // (an error partway through finishDrag, an interrupted gesture), it
+  // would otherwise sit there forever looking like a frozen leftover
+  // card. Sweep any stragglers on every render — never while a drag is
+  // actually in progress, so this can't interfere with a real one.
+  if (!dragInfo) {
+    Array.from(document.body.children).forEach((el) => {
+      if (el.classList.contains("card") || el.classList.contains("drag-stack")) el.remove();
+    });
+  }
+
   const metrics = updateCardMetrics();
 
   statMoves.textContent = s.movesLeft;
@@ -789,46 +802,57 @@ function attachDragOrHint(cardEl, card, source) {
     selection = null;
 
     const result = resolveDrop(card, source, e.clientX, e.clientY);
-    if (result.success) {
-      const st = Game.getState();
-      const combo = st.lastCombo;
-      const completed = st.lastCompletedCategory;
-      playMoveFeedbackSound(result, combo);
+    try {
+      if (result.success) {
+        const st = Game.getState();
+        const combo = st.lastCombo;
+        const completed = st.lastCompletedCategory;
+        playMoveFeedbackSound(result, combo);
 
-      const finish = () => {
-        renderGame();
-        applyCategoryCompletionEffects(completed);
-      };
+        const finish = () => {
+          renderGame();
+          applyCategoryCompletionEffects(completed);
+        };
 
-      const targetRect = result.targetEl ? result.targetEl.getBoundingClientRect() : null;
-      if (targetRect) {
-        const w = moveEl.offsetWidth;
-        const h = moveEl.offsetHeight;
-        moveEl.style.transition = "left 0.16s ease, top 0.16s ease, opacity 0.16s ease";
-        moveEl.style.left = targetRect.left + (targetRect.width - w) / 2 + "px";
-        moveEl.style.top = targetRect.top + (targetRect.height - h) / 2 + "px";
-        moveEl.style.opacity = "0.35";
-        setTimeout(() => {
+        const targetRect = result.targetEl ? result.targetEl.getBoundingClientRect() : null;
+        if (targetRect) {
+          const w = moveEl.offsetWidth;
+          const h = moveEl.offsetHeight;
+          moveEl.style.transition = "left 0.16s ease, top 0.16s ease, opacity 0.16s ease";
+          moveEl.style.left = targetRect.left + (targetRect.width - w) / 2 + "px";
+          moveEl.style.top = targetRect.top + (targetRect.height - h) / 2 + "px";
+          moveEl.style.opacity = "0.35";
+          setTimeout(() => {
+            moveEl.remove();
+            finish();
+          }, 160);
+        } else {
           moveEl.remove();
           finish();
-        }, 160);
+        }
       } else {
-        moveEl.remove();
-        finish();
+        // Only a drop clearly AIMED at a specific card (a category slot or
+        // a tableau column) and rejected counts as a mistake. Releasing
+        // over empty space isn't an attempt at anything — no kind at all —
+        // so it just glides back with no sound and no cost to the streak.
+        playMoveFeedbackSound(result, null);
+        moveEl.style.transition = "left 0.22s ease, top 0.22s ease";
+        moveEl.style.left = origLeft + "px";
+        moveEl.style.top = origTop + "px";
+        setTimeout(() => {
+          moveEl.remove();
+          renderGame();
+        }, 230);
       }
-    } else {
-      // Only a drop clearly AIMED at a specific card (a category slot or
-      // a tableau column) and rejected counts as a mistake. Releasing
-      // over empty space isn't an attempt at anything — no kind at all —
-      // so it just glides back with no sound and no cost to the streak.
-      playMoveFeedbackSound(result, null);
-      moveEl.style.transition = "left 0.22s ease, top 0.22s ease";
-      moveEl.style.left = origLeft + "px";
-      moveEl.style.top = origTop + "px";
-      setTimeout(() => {
-        moveEl.remove();
-        renderGame();
-      }, 230);
+    } catch (err) {
+      // Whatever broke above, never let the dragged card's flying/ghost
+      // element (moveEl — position:fixed, appended straight to <body>)
+      // survive as a permanent stuck-looking image: clean it up and
+      // fall back to a normal render so the screen matches the real
+      // game state again instead of showing a frozen leftover.
+      console.error("finishDrag failed after a drop", err);
+      moveEl.remove();
+      renderGame();
     }
   };
 
