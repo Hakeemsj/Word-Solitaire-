@@ -479,6 +479,65 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
 }
 
+/* A price tag, not a count — same corner spot as .action-badge but
+   gold/coin-colored instead of red, so "costs 99" never reads like
+   "8 left" at a glance. */
+.price-badge {
+  position: absolute;
+  bottom: -5px;
+  right: -8px;
+  background: linear-gradient(155deg, var(--accent), var(--accent-2));
+  color: #4a2400;
+  font-size: 0.58rem;
+  font-weight: 900;
+  border-radius: 999px;
+  min-width: 20px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35), 0 0 0 2px var(--felt);
+}
+
+/* ----- Shuffle: reshuffles the whole undelivered deck for coins ----- */
+.shuffle-btn {
+  background: linear-gradient(155deg, #5fd8d0, #1a8f92);
+  position: relative;
+}
+.shuffle-icon { width: 21px; height: 21px; }
+.shuffle-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.shuffle-btn.spinning .shuffle-icon { animation: shuffleSpin 0.5s ease; }
+@keyframes shuffleSpin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(190deg) scale(1.15); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* ----- Joker: relocates a cluster onto ANY column, any category ----- */
+.joker-btn {
+  background: linear-gradient(155deg, #ff8ad4, #c221a0);
+  position: relative;
+}
+.joker-mark {
+  font-family: "Playfair Display", serif;
+  font-weight: 900;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.joker-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+/* Armed and waiting for the player's tap(s) — the same pulsing outline
+   language the hint button already uses for its own armed state. */
+.joker-btn.armed { outline: 3px solid #fff; outline-offset: 1px; animation: jokerPulse 1s ease-in-out infinite; }
+@keyframes jokerPulse {
+  0%, 100% { box-shadow: var(--shadow-soft); }
+  50% { box-shadow: 0 0 0 4px rgba(255, 138, 212, 0.55), var(--shadow-soft); }
+}
+/* The column picked as the joker's source, waiting for a destination tap. */
+.tableau-col.joker-source .tableau-pile { outline: 3px solid #ff8ad4; outline-offset: 3px; border-radius: 14px; animation: jokerPulse 1s ease-in-out infinite; }
+
 /* ----- Top row: moves badge + streak + waste/stock ----- */
 .table-top {
   position: relative;

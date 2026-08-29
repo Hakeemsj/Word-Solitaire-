@@ -58,6 +58,8 @@ const statCoins = el("#stat-coins");
 const statUndos = el("#stat-undos");
 const hintBtn = el("#hint-btn");
 const undoBtn = el("#undo-btn");
+const shuffleBtn = el("#shuffle-btn");
+const jokerBtn = el("#joker-btn");
 const gameSettingsBtn = el("#game-settings-btn");
 const toastEl = el("#toast");
 
@@ -223,6 +225,7 @@ function showScreen(name) {
     stuckModal.classList.remove("open");
     winModal.classList.remove("open");
     modalReturnFocus = null;
+    cancelJokerMode();
     if (typeof Tutorial !== "undefined") Tutorial.cancel();
   }
 }
@@ -278,6 +281,7 @@ function startStage(stageId) {
   Game.start(stageId);
   wonSoundPlayed = false;
   selection = null;
+  cancelJokerMode();
   showScreen("game");
   renderGame();
   if (typeof Tutorial !== "undefined") Tutorial.maybeStart(Game.getState());
@@ -407,6 +411,10 @@ function renderGame() {
   undoBtn.disabled = s.undosLeft <= 0;
   updateComboBadge(s.comboStreak);
 
+  shuffleBtn.disabled = s.coins < SHUFFLE_COST;
+  jokerBtn.disabled = !jokerArmed && s.coins < JOKER_COST;
+  jokerBtn.classList.toggle("armed", jokerArmed);
+
   renderStock(s);
   renderWaste(s, metrics);
   renderSlots(s, metrics);
@@ -489,6 +497,53 @@ let dragInfo = null;
    allows, just via two taps instead of one continuous gesture. Only
    one card is ever selected at a time. */
 let selection = null;
+
+/* Joker mode: a two-tap flow layered on top of the normal tap-to-select
+   one (tableau columns only — the whole point is bypassing the
+   same-category rule that governs ordinary tableau moves). Armed by the
+   joker button; first tableau tap picks the source column, second tap
+   (on any OTHER column, matching category or not, even empty) commits
+   the move via Game.jokerMove and disarms. Tapping the armed source
+   column again cancels just the source pick; tapping the joker button
+   again while armed cancels the whole thing. */
+let jokerArmed = false;
+let jokerSource = null;
+
+function cancelJokerMode() {
+  jokerArmed = false;
+  jokerSource = null;
+}
+
+function handleJokerColumnTap(colIdx) {
+  const s = Game.getState();
+  const colEls = Array.from(tableauEl.querySelectorAll(".tableau-col"));
+  if (jokerSource === null) {
+    const col = s.tableau[colIdx];
+    if (!col || col.length === 0 || !col[col.length - 1].faceUp) {
+      shakeElement(colEls[colIdx]);
+      return;
+    }
+    jokerSource = colIdx;
+    renderGame();
+    return;
+  }
+  if (jokerSource === colIdx) {
+    jokerSource = null;
+    renderGame();
+    return;
+  }
+  const before = s.tableau[jokerSource].length;
+  Game.jokerMove(jokerSource, colIdx);
+  const success = Game.getState().tableau[jokerSource].length < before;
+  cancelJokerMode();
+  if (success) {
+    Sound.stack();
+    Haptics.stack();
+  } else {
+    shakeElement(colEls[colIdx]);
+  }
+  renderGame();
+}
 
 function pointInRect(x, y, rect) {
   return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
@@ -677,6 +732,11 @@ function resolveDrop(card, source, x, y) {
 function attachDragOrHint(cardEl, card, source) {
   cardEl.addEventListener("pointerdown", (e) => {
     if (e.button !== undefined && e.button !== 0) return;
+    if (jokerArmed) {
+      e.preventDefault();
+      if (source.type === "tableau") handleJokerColumnTap(source.colIdx);
+      return;
+    }
     const s = Game.getState();
     if (s.hintMode) {
       // Without this, the browser's own default pointerdown-focus
@@ -1037,13 +1097,16 @@ function renderTableau(s, metrics) {
 
     colEl.appendChild(pileEl);
     if (col.length === 0) colEl.classList.add("empty-col");
+    if (colIdx === jokerSource) colEl.classList.add("joker-source");
 
     // Only fires for a tap that lands on genuinely empty column space —
     // a tap that lands on an actual card is handled by that card's own
     // tap logic (attachDragOrHint/handleCardTap) instead, since the
     // event target there is the card, not colEl/pileEl themselves.
     colEl.addEventListener("click", (e) => {
-      if (e.target === colEl || e.target === pileEl) attemptTapMoveToColumn(colIdx);
+      if (e.target !== colEl && e.target !== pileEl) return;
+      if (jokerArmed) handleJokerColumnTap(colIdx);
+      else attemptTapMoveToColumn(colIdx);
     });
 
     tableauEl.appendChild(colEl);
@@ -1053,6 +1116,7 @@ function renderTableau(s, metrics) {
 hintBtn.addEventListener("click", () => {
   const s = Game.getState();
   selection = null;
+  cancelJokerMode();
   if (s.hintMode) Game.cancelHint();
   else Game.armHint();
   renderGame();
@@ -1060,7 +1124,44 @@ hintBtn.addEventListener("click", () => {
 
 undoBtn.addEventListener("click", () => {
   selection = null;
+  cancelJokerMode();
   Game.undo();
+  renderGame();
+});
+
+shuffleBtn.addEventListener("click", () => {
+  const s = Game.getState();
+  if (s.coins < SHUFFLE_COST) {
+    showToast("Not enough coins", "bad");
+    return;
+  }
+  selection = null;
+  cancelJokerMode();
+  if (s.hintMode) Game.cancelHint();
+  Game.shuffleBoard();
+  Sound.flip();
+  Haptics.flip();
+  shuffleBtn.classList.remove("spinning");
+  void shuffleBtn.offsetWidth;
+  shuffleBtn.classList.add("spinning");
+  renderGame();
+});
+
+jokerBtn.addEventListener("click", () => {
+  const s = Game.getState();
+  if (jokerArmed) {
+    cancelJokerMode();
+    renderGame();
+    return;
+  }
+  if (s.coins < JOKER_COST) {
+    showToast("Not enough coins", "bad");
+    return;
+  }
+  selection = null;
+  if (s.hintMode) Game.cancelHint();
+  jokerArmed = true;
+  jokerSource = null;
   renderGame();
 });
 

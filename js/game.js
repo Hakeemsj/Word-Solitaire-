@@ -29,6 +29,8 @@ const VISIBLE_WASTE = 3; // the front card plus 2 peeking behind it
 const MAX_LIVES = 5;
 const LIFE_REGEN_MS = 30 * 60 * 1000; // one heart every 30 minutes
 const HEART_REFILL_COST = 50;
+const SHUFFLE_COST = 99;
+const JOKER_COST = 99;
 
 const DEFAULT_SAVE = { coins: 20, unlockedStage: 1, lives: MAX_LIVES, lastLifeLostAt: null, updatedAt: 0 };
 
@@ -599,6 +601,91 @@ const Game = (function () {
     return getState();
   }
 
+  /* Paid escape hatch for a genuinely stuck column: relocates a front
+     cluster onto ANY other column, ignoring the category match
+     isValidTableauTarget normally requires. Doesn't collect or
+     deliver anything (still purely a reorganizing move, just an
+     unrestricted one) — frontClusterSize/renderTableau already treat
+     "same category as whatever's currently at the front" as the only
+     rule for what counts as a moving cluster, so a column ending up
+     with two different categories stacked in it (the whole point of
+     this move) needs no special-casing anywhere else. Not undoable
+     and doesn't spend a move, matching buyMoves()/refillLives(): a
+     coin purchase, not a normal play. */
+  function jokerMove(fromCol, toCol) {
+    if (!state || state.status !== "playing") return getState();
+    if (fromCol === toCol) return getState();
+    const src = state.tableau[fromCol];
+    if (!src || src.length === 0) return getState();
+    const card = src[src.length - 1];
+    if (!card.faceUp) return getState();
+    const dst = state.tableau[toCol];
+
+    const save = loadSave();
+    if (save.coins < JOKER_COST) return getState();
+    save.coins -= JOKER_COST;
+    saveGame(save);
+    state.coins = save.coins;
+
+    const moveCount = frontClusterSize(src, state.wordToCategory);
+    const moving = src.splice(src.length - moveCount, moveCount);
+    revealFront(src);
+    moving.forEach((c) => {
+      c.faceUp = true;
+      dst.push(c);
+    });
+    state.lastCombo = null;
+    return getState();
+  }
+
+  /* Paid escape hatch for a genuinely deadlocked board: every card not
+     yet delivered (stock, waste, and the whole tableau — collected
+     words already left these arrays for good, so they're untouched)
+     goes back into one pool and gets redealt from scratch, using the
+     same distribution the stage originally used. Category progress,
+     moves left, hints, undos — everything outside these three arrays
+     — is untouched. Not undoable, same reasoning as jokerMove. */
+  function shuffleBoard() {
+    if (!state || state.status !== "playing") return getState();
+
+    const save = loadSave();
+    if (save.coins < SHUFFLE_COST) return getState();
+    save.coins -= SHUFFLE_COST;
+    saveGame(save);
+    state.coins = save.coins;
+
+    const pool = [];
+    state.tableau.forEach((col) => pool.push(...col));
+    pool.push(...state.stock);
+    pool.push(...state.waste);
+
+    const config = resolveStageConfig(state.stageId);
+    const shuffled = shuffle(pool);
+    const depths = distributeTableau(shuffled.length, config.columns, config.stockReserveRatio);
+    const tableau = Array.from({ length: config.columns }, () => []);
+    let cursor = 0;
+    depths.forEach((depth, colIdx) => {
+      const col = [];
+      for (let i = 0; i < depth; i++) col.push(shuffled[cursor++]);
+      col.forEach((c, i) => {
+        c.faceUp = i === col.length - 1;
+        if (c.faceUp) c.justRevealed = true;
+      });
+      tableau[colIdx] = col;
+    });
+    const stock = shuffle(shuffled.slice(cursor));
+    stock.forEach((c) => {
+      c.faceUp = false;
+    });
+
+    state.tableau = tableau;
+    state.stock = stock;
+    state.waste = [];
+    state.lastCombo = null;
+    history = [];
+    return getState();
+  }
+
   /* A waste card can join (or start) a tableau cluster the same way —
      dropped on an empty column, or on a column fronted by a card
      that shares its category. */
@@ -874,6 +961,8 @@ const Game = (function () {
     playClusterToSlot,
     breakCombo,
     moveTableauCard,
+    jokerMove,
+    shuffleBoard,
     moveWasteToTableau,
     getFrontClusterSize,
     undo,
