@@ -1115,7 +1115,7 @@ const RELATIONS = [
   { id: "partof_face", type: "PartOf", name: "Face", words: ["eye", "nose", "mouth", "ear", "cheek", "chin"] },
 
   { id: "activity_evening", type: "Activity", name: "Evening", words: ["relax", "dine", "unwind", "socialize"] },
-  { id: "activity_weekend", type: "Activity", name: "Weekend", words: ["picnic", "hike", "camp", "barbecue"] },
+  { id: "activity_weekend", type: "Activity", name: "Holiday", words: ["picnic", "hike", "camp", "barbecue"] },
   { id: "activity_party", type: "Activity", name: "Party", words: ["celebrate", "dance", "sing", "decorate"] },
   { id: "activity_winter", type: "Activity", name: "Winter", words: ["ski", "skate", "sled", "shovel"] },
   { id: "activity_school", type: "Activity", name: "School", words: ["read", "write", "listen", "discuss", "class"] },
@@ -1129,7 +1129,7 @@ const RELATIONS = [
   { id: "context_cinema", type: "Context", name: "Cinema", words: ["popcorn", "theater", "screen", "trailer", "audience"] },
 
   { id: "concept_health", type: "Concept", name: "Health", words: ["fitness", "nutrition", "wellness", "hygiene"] },
-  { id: "concept_environment", type: "Concept", name: "Environment", words: ["pollution", "recycling", "conservation", "sustainability"] },
+  { id: "concept_environment", type: "Concept", name: "Environment", words: ["pollution", "recycling", "climate", "wildlife"] },
   { id: "concept_education", type: "Concept", name: "Education", words: ["knowledge", "curriculum", "literacy", "graduation"] },
   { id: "concept_technology", type: "Concept", name: "Technology", words: ["software", "hardware", "network", "data"] },
   { id: "concept_culture", type: "Concept", name: "Culture", words: ["tradition", "custom", "heritage", "festival"] },
