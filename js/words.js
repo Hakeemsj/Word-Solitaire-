@@ -1101,6 +1101,7 @@ const RELATIONS = [
   { id: "ant_success", type: "Antonym", name: "Success", words: ["successful", "victorious", "defeated", "failure"] },
   { id: "ant_freedom", type: "Antonym", name: "Freedom", words: ["free", "trapped", "captive", "liberated"] },
   { id: "ant_visibility", type: "Antonym", name: "Visibility", words: ["visible", "invisible", "hidden", "clear"] },
+  { id: "ant_mood", type: "Antonym", name: "Mood", words: ["gloomy", "stressed", "positive", "calm", "optimistic"] },
 
   { id: "func_social", type: "Function", name: "Social", words: ["post", "comment", "like", "share", "follow"] },
   { id: "func_communication", type: "Function", name: "Communication", words: ["call", "text", "email", "chat", "message"] },
