@@ -1067,6 +1067,7 @@ const RELATIONS = [
   { id: "cat_games", type: "Category", name: "Games", words: ["chess", "puzzle", "dominoes", "dice"] },
   { id: "cat_materials", type: "Category", name: "Materials", words: ["wood", "plastic", "glass", "fabric", "leather"] },
   { id: "cat_vehicles", type: "Category", name: "Vehicles", words: ["motorcycle", "truck", "van", "tractor"] },
+  { id: "cat_nature", type: "Category", name: "Nature", words: ["forest", "river", "mountain", "valley", "desert", "ocean", "waterfall", "cliff"] },
 
   { id: "syn_scared", type: "Synonym", name: "Scared", words: ["afraid", "frightened", "terrified", "fearful"] },
   { id: "syn_beautiful", type: "Synonym", name: "Beautiful", words: ["pretty", "lovely", "gorgeous", "attractive"] },
@@ -1118,7 +1119,6 @@ const RELATIONS = [
   { id: "activity_weekend", type: "Activity", name: "Holiday", words: ["picnic", "hike", "camp", "barbecue"] },
   { id: "activity_party", type: "Activity", name: "Party", words: ["celebrate", "dance", "sing", "decorate"] },
   { id: "activity_winter", type: "Activity", name: "Winter", words: ["ski", "skate", "sled", "shovel"] },
-  { id: "activity_school", type: "Activity", name: "School", words: ["read", "write", "listen", "discuss", "class"] },
   { id: "activity_exercise", type: "Activity", name: "Exercise", words: ["jog", "stretch", "lift", "squat"] },
 
   { id: "context_wedding", type: "Context", name: "Wedding", words: ["bride", "groom", "ring", "bouquet", "honeymoon"] },
@@ -1127,6 +1127,8 @@ const RELATIONS = [
   { id: "context_library", type: "Context", name: "Library", words: ["librarian", "bookshelf", "borrow", "silence"] },
   { id: "context_bank", type: "Context", name: "Bank", words: ["deposit", "withdraw", "account", "loan", "transfer"] },
   { id: "context_cinema", type: "Context", name: "Cinema", words: ["popcorn", "theater", "screen", "trailer", "audience"] },
+  { id: "context_match", type: "Context", name: "Match", words: ["goal", "team", "coach", "referee", "stadium", "penalty"] },
+  { id: "context_school", type: "Context", name: "School", words: ["exam", "lecture", "homework", "semester", "classroom", "grade"] },
 
   { id: "concept_health", type: "Concept", name: "Health", words: ["fitness", "nutrition", "wellness", "hygiene"] },
   { id: "concept_environment", type: "Concept", name: "Environment", words: ["pollution", "recycling", "climate", "wildlife"] },
@@ -1134,6 +1136,8 @@ const RELATIONS = [
   { id: "concept_technology", type: "Concept", name: "Technology", words: ["software", "hardware", "network", "data"] },
   { id: "concept_culture", type: "Concept", name: "Culture", words: ["tradition", "custom", "heritage", "festival"] },
   { id: "concept_justice", type: "Concept", name: "Justice", words: ["law", "crime", "punishment", "verdict"] },
+  { id: "concept_risk", type: "Concept", name: "Risk", words: ["danger", "gamble", "hazard", "threat", "unsafe"] },
+  { id: "concept_trust", type: "Concept", name: "Trust", words: ["honesty", "loyalty", "faith", "confidence", "integrity"] },
 ];
 
 const RELATIONS_BY_ID = Object.fromEntries(RELATIONS.map((r) => [r.id, r]));
