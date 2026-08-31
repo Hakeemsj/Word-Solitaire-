@@ -635,6 +635,11 @@ const Game = (function () {
       dst.push(c);
     });
     state.lastCombo = null;
+    // Same reasoning as shuffleBoard(): with no snapshot of its own, an
+    // Undo reaching back past this point would silently erase the board
+    // change the player just paid for while the coins stay spent. Wiping
+    // history here means Undo simply can't cross this boundary.
+    history = [];
     return getState();
   }
 
@@ -660,20 +665,34 @@ const Game = (function () {
     pool.push(...state.waste);
 
     const config = resolveStageConfig(state.stageId);
-    const shuffled = shuffle(pool);
-    const depths = distributeTableau(shuffled.length, config.columns, config.stockReserveRatio);
+
+    // Same split start() uses: only a minority of collector cards are
+    // ever eligible to land in the tableau, where they can wall off a
+    // column. Pooling every card together with no regard for "marker
+    // vs word" (as this used to) could redeal FAR more collectors into
+    // the tableau than the stage was ever tuned for — a "helper" that
+    // makes the board harder, not easier.
+    const markerCards = pool.filter((c) => c.isMarker);
+    const wordCards = pool.filter((c) => !c.isMarker);
+    const tableauEligibleCount = Math.max(0, Math.round(markerCards.length * config.tableauMarkerRatio));
+    const shuffledMarkers = shuffle(markerCards);
+    const tableauEligibleMarkers = shuffledMarkers.slice(0, tableauEligibleCount);
+    const stockOnlyMarkers = shuffledMarkers.slice(tableauEligibleCount);
+
+    const shuffledDeck = shuffle(wordCards.concat(tableauEligibleMarkers));
+    const depths = distributeTableau(shuffledDeck.length, config.columns, config.stockReserveRatio);
     const tableau = Array.from({ length: config.columns }, () => []);
     let cursor = 0;
     depths.forEach((depth, colIdx) => {
       const col = [];
-      for (let i = 0; i < depth; i++) col.push(shuffled[cursor++]);
+      for (let i = 0; i < depth; i++) col.push(shuffledDeck[cursor++]);
       col.forEach((c, i) => {
         c.faceUp = i === col.length - 1;
         if (c.faceUp) c.justRevealed = true;
       });
       tableau[colIdx] = col;
     });
-    const stock = shuffle(shuffled.slice(cursor));
+    const stock = shuffle(shuffledDeck.slice(cursor).concat(stockOnlyMarkers));
     stock.forEach((c) => {
       c.faceUp = false;
     });
