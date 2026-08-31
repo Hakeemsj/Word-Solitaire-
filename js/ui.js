@@ -334,12 +334,21 @@ function setupDevPanel() {
    3- or 4-column stage (most of them — 5 is the max) left a whole
    extra column's worth of width, and the card size that comes with
    using it, sitting empty — cards ended up noticeably smaller and
-   harder to grab than the screen had room for. */
+   harder to grab than the screen had room for.
+
+   Sizing purely off the real column count swung too far the other way,
+   though: a 3-column board's cards ended up ~70% bigger than a
+   5-column board's, a jarring size jump between stages. Flooring the
+   column count used for SIZING at 4 caps that — a 3-column stage now
+   sizes its cards exactly like a 4-column one would (leftover width
+   becomes a centered margin instead of even bigger cards), while 4-
+   and 5-column stages, already at or above that floor, are unaffected. */
 function updateCardMetrics() {
   const s = Game.getState();
   const columns = (s && s.tableau && s.tableau.length) || 4;
+  const sizingColumns = Math.max(columns, 4);
   const w = tableauEl.clientWidth || window.innerWidth - 16;
-  const divisor = (5 * columns - 1) / 4; // edge to edge across THIS stage's columns
+  const divisor = (5 * sizingColumns - 1) / 4; // edge to edge across a board with at least 4 columns
   const fullW = w / divisor;
   const cardW = fullW * 0.85; // 15% smaller than a full-bleed card
   const cardH = cardW * (108 / 84); // keep the original card proportions
@@ -359,11 +368,18 @@ function updateCardMetrics() {
   // from — anchored to the stock's OWN (already-clamped) position
   // rather than a fixed fraction of the row, so the two piles never
   // overlap regardless of how big a card ends up being on a
-  // narrow-column stage (a 3-column stage's cards run noticeably
-  // bigger than a 5-column stage's — see updateCardMetrics above).
-  const contentWidth = columns * (cardW + gap); // left edge of the column just past the last one
+  // narrow-column stage.
+  //
+  // A capped stage (3 columns, real width below `w`) leaves its
+  // tableau/foundations grid centered by CSS (see .tableau/.foundations
+  // justify-content) rather than flush against the left edge like an
+  // uncapped stage — `.table-top` has no such grid to center on its
+  // own, so the same inset has to be added here by hand or the stock
+  // pile would sit under empty felt instead of just past the columns.
+  const contentWidth = columns * (cardW + gap); // width of the real columns at this stage's card size
+  const centerInset = Math.max(0, (w - contentWidth) / 2);
   const wasteWidth = cardW * 1.64;
-  const stockLeft = Math.max(0, Math.min(contentWidth, w - cardW));
+  const stockLeft = Math.max(0, Math.min(centerInset + contentWidth, w - cardW));
   const wasteLeft = Math.max(0, stockLeft - gap - wasteWidth);
   root.setProperty("--stock-left", stockLeft.toFixed(1) + "px");
   root.setProperty("--waste-left", wasteLeft.toFixed(1) + "px");
