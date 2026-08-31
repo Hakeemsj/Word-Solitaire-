@@ -34,14 +34,6 @@ const JOKER_COST = 99;
 
 const DEFAULT_SAVE = { coins: 20, unlockedStage: 1, lives: MAX_LIVES, lastLifeLostAt: null, updatedAt: 0 };
 
-/* Fires whenever a save is written locally, so an external module (see
-   js/cloud.js) can mirror it to Firebase without game.js needing to know
-   that cloud sync exists at all. */
-let onSaveChanged = null;
-function setOnSaveChanged(fn) {
-  onSaveChanged = fn;
-}
-
 /* Guards against more than just a JSON parse failure: a save written by
    an older/newer version, a partial write cut off mid-write, or a
    hand-edited localStorage value could all produce a validly-parsed
@@ -105,27 +97,6 @@ function saveGame(save) {
     /* progress for this session still works in memory; it just won't
        survive a reload until storage is available again */
   }
-  if (onSaveChanged) onSaveChanged(save);
-}
-
-/* Overwrites the local save with one pulled from the cloud (see
-   js/cloud.js) instead of the current device's own progress. Unlike
-   saveGame(), this keeps the cloud copy's own updatedAt timestamp rather
-   than stamping "now" — otherwise every pull would immediately look
-   newer than every other device's copy, and two devices sync-restoring
-   from each other back and forth would just fight over whichever synced
-   most recently instead of whichever actually has the newest progress.
-   Deliberately skips onSaveChanged: the data just came FROM the cloud,
-   so echoing it straight back up is redundant, not wrong. */
-function applyCloudSave(cloudSave) {
-  const save = sanitizeSave(cloudSave);
-  save.updatedAt = Number.isFinite(cloudSave && cloudSave.updatedAt) ? cloudSave.updatedAt : Date.now();
-  try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(save));
-  } catch (e) {
-    /* same as saveGame: session still works in memory even if this fails */
-  }
-  return save;
 }
 
 function shuffle(arr) {
@@ -961,16 +932,6 @@ const Game = (function () {
     return frontClusterSize(state.tableau[colIndex], state.wordToCategory);
   }
 
-  /* Thin wrapper around the top-level applyCloudSave() (see js/cloud.js)
-     that also refreshes the in-progress game's coin badge — the
-     top-level version can't touch `state`, since that's private to this
-     closure. */
-  function applyCloudSaveAndSync(cloudSave) {
-    const save = applyCloudSave(cloudSave);
-    if (state) state.coins = save.coins;
-    return save;
-  }
-
   return {
     start,
     getState,
@@ -996,7 +957,5 @@ const Game = (function () {
     loseLife,
     msUntilNextLife,
     refillLives,
-    applyCloudSave: applyCloudSaveAndSync,
-    setOnSaveChanged,
   };
 })();
