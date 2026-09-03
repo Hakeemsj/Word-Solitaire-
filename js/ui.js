@@ -9,7 +9,7 @@
    every stage can be spot-checked without grinding through the normal
    unlock progression or the hearts gate. Flip to false (or delete this
    whole block + setupDevPanel() call) before shipping. */
-const DEV_MODE = true;
+const DEV_MODE = false;
 
 const el = (sel, root = document) => root.querySelector(sel);
 
