@@ -26,3 +26,51 @@ workflows:
             build
     artifacts:
       - ios/App/build/Build/Products/Debug-iphonesimulator/*.app
+
+  # --- Not usable yet ---
+  # Needs an Apple Developer Program membership + an App Store Connect API
+  # key added in Codemagic under Teams > Integrations, named to match
+  # `app_store_connect: word_solitaire_app_store` below (rename both sides
+  # together if you pick a different name). Once that integration exists,
+  # this workflow builds a signed .ipa and uploads it straight to
+  # TestFlight — nothing else in this file needs to change.
+  ios-testflight-release:
+    name: iOS TestFlight Release (signed)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: word_solitaire_app_store
+    environment:
+      xcode: latest
+      node: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.hakeemsj.wordsolitaire
+      vars:
+        APP_ID: com.hakeemsj.wordsolitaire
+    scripts:
+      - name: Install npm dependencies
+        script: npm install
+      - name: Build web assets
+        script: npm run build
+      - name: Sync Capacitor iOS project
+        script: npx cap sync ios
+      - name: Fetch signing certificate and provisioning profile
+        script: xcode-project use-profiles
+      - name: Bump build number past the latest TestFlight build
+        script: |
+          cd ios/App
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_ID")
+          agvtool new-version -all $(($LATEST + 1))
+      - name: Build and sign the .ipa
+        script: |
+          xcode-project build-ipa \
+            --project "ios/App/App.xcodeproj" \
+            --scheme "App"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
