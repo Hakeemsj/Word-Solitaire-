@@ -317,6 +317,9 @@ body {
   position: relative;
   padding-left: 8px;
   padding-right: 8px;
+  /* Reserves room for the fixed .booster-dock so it never covers the
+     bottom of a tall tableau column instead of just floating over it. */
+  padding-bottom: 120px;
 }
 #screen-game::before {
   content: "";
@@ -451,18 +454,26 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
 }
 
-/* ---------- Booster dock: Hint / Shuffle / Joker, docked below the
-   tableau instead of crammed into the header row. Each booster is a
-   58x58 rounded-square tile (not a circle) with its own gradient,
+/* ---------- Booster dock: Hint / Shuffle / Joker, pinned to the
+   bottom of the viewport (not the end of the document flow) so it
+   never drifts up or down as a tableau column grows taller — it's
+   always the same fixed strip at the bottom of the screen. Each
+   booster is a 58x58 rounded-square tile with its own gradient,
    matching the reference mockup's proportions and colors. ---------- */
-.booster-dock {
+#screen-game > .booster-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
   gap: 6px;
   max-width: 600px;
-  margin: 22px auto 4px;
-  padding: 6px 14px 0;
+  margin: 0 auto;
+  padding: 10px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, rgba(6, 30, 18, 0.55), rgba(6, 30, 18, 0));
 }
 .booster-item {
   display: flex;
@@ -501,6 +512,27 @@ body {
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.22);
 }
 .booster-emoji { font-size: 26px; line-height: 1; }
+/* White pill with a green ring/text — a "count" badge, distinct from
+   the app's red .action-badge (used elsewhere for undo) but matching
+   this specific reference design. */
+.booster-count-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 23px;
+  height: 21px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 2px solid var(--felt);
+  color: var(--felt);
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .booster-label {
   color: rgba(255, 255, 255, 0.72);
   font-weight: 600;
@@ -521,31 +553,100 @@ body {
 }
 .booster-cost .coin-icon { width: 14px; height: 14px; }
 
-/* ----- Shuffle: reshuffles the whole undelivered deck for coins ----- */
+/* ----- Shuffle: reshuffles the whole undelivered deck for coins -----
+   Two overlapping card shapes plus a small circular refresh arrow on
+   the front card, built from plain shapes rather than an icon font so
+   it reads unmistakably as "cards" at 58px. */
 .shuffle-btn {
   background: linear-gradient(180deg, #3ec2b6, #22988f);
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.22);
 }
-.shuffle-icon { width: 24px; height: 24px; }
-.shuffle-btn.spinning .shuffle-icon { animation: shuffleSpin 0.5s ease; }
+.shuffle-icon-wrap {
+  position: relative;
+  width: 58px;
+  height: 58px;
+}
+.shuffle-card {
+  position: absolute;
+  width: 22px;
+  height: 31px;
+  border-radius: 5px;
+  box-sizing: border-box;
+  top: 13px;
+  left: 18px;
+}
+.shuffle-card-back {
+  background: rgba(255, 255, 255, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  transform: rotate(-19deg);
+}
+.shuffle-card-front {
+  background: #fdf7e6;
+  border: 2px solid #17756e;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transform: rotate(13deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.shuffle-arrow {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  transform: rotate(-13deg);
+}
+.shuffle-arrow-ring {
+  position: absolute;
+  inset: 1px;
+  border-radius: 50%;
+  border: 2.5px solid #17756e;
+  border-top-color: transparent;
+  box-sizing: border-box;
+  transform: rotate(35deg);
+}
+.shuffle-arrow-head {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 5.5px solid #17756e;
+  transform: rotate(115deg);
+}
+.shuffle-btn.spinning .shuffle-icon-wrap { animation: shuffleSpin 0.5s ease; }
 @keyframes shuffleSpin {
   0% { transform: rotate(0deg) scale(1); }
   50% { transform: rotate(190deg) scale(1.15); }
   100% { transform: rotate(360deg) scale(1); }
 }
 
-/* ----- Joker: relocates a cluster onto ANY column, any category ----- */
+/* ----- Joker: relocates a cluster onto ANY column, any category -----
+   A single card split diagonally cream/navy, matching the reference's
+   two-tone "wild card" look, with the J mark centered on top. */
 .joker-btn {
   background: linear-gradient(180deg, #e8579f, #c22e79);
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.22);
 }
+.joker-card {
+  width: 34px;
+  height: 44px;
+  border-radius: 7px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, #fdf7e6 0 50%, #2b2b3a 50% 100%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .joker-mark {
-  font-family: "Playfair Display", serif;
-  font-weight: 900;
-  font-size: 1.4rem;
+  font-weight: 800;
+  font-size: 20px;
   line-height: 1;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  color: #c22e79;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 /* Armed and waiting for the player's tap(s) — the same pulsing outline
    language the hint button already uses for its own armed state. */
