@@ -366,30 +366,44 @@ body {
 }
 /* Wraps the coin icon so the add-button can overlap its corner as a
    small badge, instead of sitting as a separate button after the
-   count — matches the reference header's "+" placement. */
+   count — matches the reference header's "+" placement. The coin icon
+   and the "+" badge read as ONE combined logo now, so the actual
+   <button> is stretched to cover the whole wrap (invisible hit area)
+   instead of just the small visible circle — tapping the coin itself
+   opens the shop, not only the tiny badge in its corner. The visible
+   green circle + cross is a separate, non-interactive decoration
+   layered on top so clicks pass through to the button beneath it. */
 .game-coin-wrap { position: relative; display: inline-flex; flex-shrink: 0; }
 .game-coin-add-btn {
+  position: absolute;
+  inset: -4px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+.game-coin-add-badge {
   position: absolute;
   bottom: -5px;
   right: -6px;
   width: 19px;
   height: 19px;
-  padding: 0;
   border-radius: 50%;
   border: 2px solid var(--felt);
   background: var(--good);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
-  cursor: pointer;
+  pointer-events: none;
 }
-.game-coin-add-btn::before,
-.game-coin-add-btn::after {
+.game-coin-add-badge::before,
+.game-coin-add-badge::after {
   content: "";
   position: absolute;
   background: #ffffff;
   border-radius: 1px;
 }
-.game-coin-add-btn::before { left: 50%; top: 22%; bottom: 22%; width: 2px; transform: translateX(-50%); }
-.game-coin-add-btn::after { top: 50%; left: 22%; right: 22%; height: 2px; transform: translateY(-50%); }
+.game-coin-add-badge::before { left: 50%; top: 22%; bottom: 22%; width: 2px; transform: translateX(-50%); }
+.game-coin-add-badge::after { top: 50%; left: 22%; right: 22%; height: 2px; transform: translateY(-50%); }
 
 /* Back in the header row, last item — takes the spot the hint button
    used to occupy (pushed to the row's far end via margin-left:auto),
