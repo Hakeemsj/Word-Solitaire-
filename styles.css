@@ -725,7 +725,7 @@ body {
   position: absolute;
   left: var(--waste-left, 0px);
   top: 0;
-  width: calc(var(--card-w, 84px) * 1.44);
+  width: calc(var(--card-w, 84px) * 1.68);
   height: var(--card-h, 108px);
 }
 .stock {
@@ -884,7 +884,7 @@ body {
    of it (the front card, or a shallower peek) at a higher z-index
    naturally covers all but a sliver, exactly like a tableau column's
    buried cards; the peek itself never has its own box shrunk. */
-.waste-peek {
+.card.waste-peek {
   position: absolute;
   top: 0;
   cursor: default;

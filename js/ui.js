@@ -380,7 +380,7 @@ function updateCardMetrics() {
   // pile would sit under empty felt instead of just past the columns.
   const contentWidth = columns * (cardW + gap); // width of the real columns at this stage's card size
   const centerInset = Math.max(0, (w - contentWidth) / 2);
-  const wasteWidth = cardW * 1.44; // front card + 2 peeks, each revealing 22% of a full card width
+  const wasteWidth = cardW * 1.68; // front card + 2 peeks, each revealing 34% of a full card width
   const stockLeft = Math.max(0, Math.min(centerInset + contentWidth, w - cardW));
   const wasteLeft = Math.max(0, stockLeft - gap - wasteWidth);
   root.setProperty("--stock-left", stockLeft.toFixed(1) + "px");
@@ -988,7 +988,7 @@ function renderWaste(s, metrics) {
   const visible = s.waste.slice(-VISIBLE_WASTE);
   const n = visible.length;
   const cardW = (metrics && metrics.cardW) || 84;
-  const peekReveal = cardW * 0.22;
+  const peekReveal = cardW * 0.34;
   visible.forEach((card, i) => {
     const depth = n - 1 - i; // 0 = frontmost, 1 = next behind, 2 = furthest shown
     if (depth === 0) {
