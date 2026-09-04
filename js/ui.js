@@ -380,7 +380,7 @@ function updateCardMetrics() {
   // pile would sit under empty felt instead of just past the columns.
   const contentWidth = columns * (cardW + gap); // width of the real columns at this stage's card size
   const centerInset = Math.max(0, (w - contentWidth) / 2);
-  const wasteWidth = cardW * 1.92; // front card + 2 peeks, each 46% of a full card width
+  const wasteWidth = cardW * 1.6; // front card + 2 overlapping peeks (46% wide, 35% tucked under the one in front)
   const stockLeft = Math.max(0, Math.min(centerInset + contentWidth, w - cardW));
   const wasteLeft = Math.max(0, stockLeft - gap - wasteWidth);
   root.setProperty("--stock-left", stockLeft.toFixed(1) + "px");
@@ -993,6 +993,12 @@ function renderWaste(s, metrics) {
   const n = visible.length;
   const cardW = (metrics && metrics.cardW) || 84;
   const peekWidth = cardW * 0.46;
+  // Each peek tucks partly UNDER the card in front of it (same height,
+  // lower z-index) instead of sitting flush beside it — that overlap is
+  // what makes it read as "a real card extending out from behind",
+  // corners and all, rather than a separate tile lined up next to it.
+  const overlap = peekWidth * 0.35;
+  const step = peekWidth - overlap;
   visible.forEach((card, i) => {
     const depth = n - 1 - i; // 0 = frontmost, 1 = next behind, 2 = furthest shown
     if (depth === 0) {
@@ -1005,7 +1011,7 @@ function renderWaste(s, metrics) {
       wasteEl.appendChild(cardEl);
     } else {
       const peekEl = makeWastePeek(card, metrics);
-      peekEl.style.left = (cardW + (depth - 1) * peekWidth).toFixed(1) + "px";
+      peekEl.style.left = (cardW - overlap + (depth - 1) * step).toFixed(1) + "px";
       peekEl.style.zIndex = 10 - depth;
       wasteEl.appendChild(peekEl);
     }

@@ -725,7 +725,7 @@ body {
   position: absolute;
   left: var(--waste-left, 0px);
   top: 0;
-  width: calc(var(--card-w, 84px) * 1.92);
+  width: calc(var(--card-w, 84px) * 1.6);
   height: var(--card-h, 108px);
 }
 .stock {
@@ -897,21 +897,6 @@ body {
   justify-content: center;
   cursor: default;
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.22);
-}
-/* Every card is the same height — this is only a shading trick, not a
-   taller card. A soft dark silhouette sits just behind the peek,
-   poking out a few px above/below its real edges, so it reads as "one
-   more card behind this one" without the peek itself changing size. */
-.waste-peek::before {
-  content: "";
-  position: absolute;
-  top: -5px;
-  bottom: -5px;
-  left: 3px;
-  right: 3px;
-  background: rgba(0, 0, 0, 0.16);
-  border-radius: 10px;
-  z-index: -1;
 }
 .waste-peek-word {
   writing-mode: vertical-rl;
