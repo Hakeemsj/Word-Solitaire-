@@ -39,6 +39,7 @@ const screenGame = el("#screen-game");
 
 const homeCoinsCount = el("#home-coins-count");
 const homeAddBtn = el("#home-add-btn");
+const gameAddBtn = el("#game-add-btn");
 const homeHeartsCount = el("#home-hearts-count");
 const homeHeartsLabel = el("#home-hearts-label");
 const homeSettingsBtn = el("#home-settings-btn");
@@ -1239,6 +1240,10 @@ homeContinueBtn.addEventListener("click", () => {
 });
 
 homeAddBtn.addEventListener("click", () => {
+  showToast("Coin shop coming soon!", "good");
+});
+
+gameAddBtn.addEventListener("click", () => {
   showToast("Coin shop coming soon!", "good");
 });
 
