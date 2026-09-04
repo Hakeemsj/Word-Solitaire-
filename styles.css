@@ -885,9 +885,13 @@ body {
    sideways to fit the narrower width. */
 .waste-peek {
   position: absolute;
-  top: 0;
+  /* Slightly taller than the front card and centered on it, so it
+     visibly pokes out top AND bottom — the cue that this is a real
+     card sitting physically behind/underneath, not just a flat label
+     drawn beside it. */
+  top: -6px;
   width: calc(var(--card-w, 84px) * 0.46);
-  height: var(--card-h, 108px);
+  height: calc(var(--card-h, 108px) + 12px);
   box-sizing: border-box;
   border-radius: 12px;
   background: linear-gradient(160deg, var(--card-bg), var(--card-bg-2));
