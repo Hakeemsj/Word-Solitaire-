@@ -100,6 +100,7 @@ const settingsSoundBtn = el("#settings-sound-btn");
 const settingsVibrationBtn = el("#settings-vibration-btn");
 const settingsCloseBtn = el("#settings-close-btn");
 const settingsBackBtn = el("#settings-back-btn");
+const settingsRestartBtn = el("#settings-restart-btn");
 const settingsHowToPlayBtn = el("#settings-howtoplay-btn");
 
 /* Modal focus management: when a modal opens, focus moves INTO it (the
@@ -1206,7 +1207,7 @@ buyMovesBtn.addEventListener("click", () => {
 // away from it either way costs a heart. Paying for more moves
 // (buyMovesBtn above) is the only way to keep the SAME attempt alive
 // without losing one.
-restartBtn.addEventListener("click", () => {
+function restartLevelLosingLife() {
   selection = null;
   const save = Game.loseLife();
   if (save.lives <= 0) {
@@ -1217,7 +1218,9 @@ restartBtn.addEventListener("click", () => {
   }
   Game.restart();
   renderGame();
-});
+}
+
+restartBtn.addEventListener("click", restartLevelLosingLife);
 
 giveUpBtn.addEventListener("click", () => {
   Game.loseLife();
@@ -1258,7 +1261,9 @@ function updateSettingsVibrationBtn() {
 function openSettings() {
   updateSettingsSoundBtn();
   updateSettingsVibrationBtn();
-  settingsBackBtn.style.display = screenGame.classList.contains("active") ? "" : "none";
+  const inGame = screenGame.classList.contains("active");
+  settingsBackBtn.style.display = inGame ? "" : "none";
+  settingsRestartBtn.style.display = inGame ? "" : "none";
   setModalOpen(settingsModal, settingsModalBox, true);
 }
 
@@ -1279,6 +1284,11 @@ settingsBackBtn.addEventListener("click", () => {
   setModalOpen(settingsModal, settingsModalBox, false);
   showScreen("stages");
   renderHome();
+});
+
+settingsRestartBtn.addEventListener("click", () => {
+  setModalOpen(settingsModal, settingsModalBox, false);
+  restartLevelLosingLife();
 });
 
 settingsHowToPlayBtn.addEventListener("click", () => {
