@@ -429,40 +429,6 @@ body {
   100% { transform: scale(1); }
 }
 
-.hint-btn {
-  /* A normal flex item in .game-header, right after undo — same as
-     every other badge in the row. It used to be pinned via
-     position:absolute to a JS-computed offset (so it would line up
-     above the stock pile), but that removed it from flex-wrap's flow
-     entirely: on a narrow screen it had nowhere to go but overlap a
-     neighbor or clip off the edge. As a normal item it just wraps to
-     the next line like everything else when the row runs out of room. */
-  position: relative;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  box-sizing: border-box;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(155deg, var(--accent), var(--accent-2));
-  color: #3a2200;
-  border: none;
-  border-radius: 50%;
-  font-size: 1.25rem;
-  cursor: pointer;
-  /* Same soft-shadow language as the rest of the header (not the old
-     chunky 3D bevel) — the gold gradient alone is enough to read as the
-     row's primary action, without looking like it belongs to a
-     different design system. */
-  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-  transition: transform 0.15s ease;
-}
-.hint-btn:hover:not(:disabled) { transform: translateY(-2px); }
-.hint-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
-.hint-btn.armed { outline: 3px solid #fff; outline-offset: 1px; }
-
 .round-action-btn { position: relative; font-size: 1rem; display: flex; align-items: center; justify-content: center; }
 .round-action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .undo-icon { width: 20px; height: 20px; }
@@ -485,34 +451,82 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
 }
 
-/* A price tag, not a count — same corner spot as .action-badge but
-   gold/coin-colored instead of red, so "costs 99" never reads like
-   "8 left" at a glance. */
-.price-badge {
-  position: absolute;
-  bottom: -5px;
-  right: -8px;
-  background: linear-gradient(155deg, var(--accent), var(--accent-2));
-  color: #4a2400;
-  font-size: 0.58rem;
-  font-weight: 900;
-  border-radius: 999px;
-  min-width: 20px;
-  height: 15px;
+/* ---------- Booster dock: Hint / Shuffle / Joker, docked below the
+   tableau instead of crammed into the header row. Each booster is a
+   58x58 rounded-square tile (not a circle) with its own gradient,
+   matching the reference mockup's proportions and colors. ---------- */
+.booster-dock {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 6px;
+  max-width: 600px;
+  margin: 22px auto 4px;
+  padding: 6px 14px 0;
+}
+.booster-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  width: 72px;
+}
+.hint-btn,
+.shuffle-btn,
+.joker-btn {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  padding: 0;
+  box-sizing: border-box;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35), 0 0 0 2px var(--felt);
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
 }
+.hint-btn:hover:not(:disabled),
+.shuffle-btn:hover:not(:disabled),
+.joker-btn:hover:not(:disabled) { transform: translateY(-2px); }
+.hint-btn:disabled,
+.shuffle-btn:disabled,
+.joker-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+.hint-btn.armed { outline: 3px solid #fff; outline-offset: 1px; }
+
+.hint-btn {
+  background: linear-gradient(180deg, #ffd75e, #f0a417);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.22);
+}
+.booster-emoji { font-size: 26px; line-height: 1; }
+.booster-label {
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.4px;
+}
+.booster-cost {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 20px;
+  padding: 0 7px 0 3px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 12px;
+}
+.booster-cost .coin-icon { width: 14px; height: 14px; }
 
 /* ----- Shuffle: reshuffles the whole undelivered deck for coins ----- */
 .shuffle-btn {
-  background: linear-gradient(155deg, #5fd8d0, #1a8f92);
-  position: relative;
+  background: linear-gradient(180deg, #3ec2b6, #22988f);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.22);
 }
-.shuffle-icon { width: 21px; height: 21px; }
-.shuffle-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.shuffle-icon { width: 24px; height: 24px; }
 .shuffle-btn.spinning .shuffle-icon { animation: shuffleSpin 0.5s ease; }
 @keyframes shuffleSpin {
   0% { transform: rotate(0deg) scale(1); }
@@ -522,24 +536,23 @@ body {
 
 /* ----- Joker: relocates a cluster onto ANY column, any category ----- */
 .joker-btn {
-  background: linear-gradient(155deg, #ff8ad4, #c221a0);
-  position: relative;
+  background: linear-gradient(180deg, #e8579f, #c22e79);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.22);
 }
 .joker-mark {
   font-family: "Playfair Display", serif;
   font-weight: 900;
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   line-height: 1;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
-.joker-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 /* Armed and waiting for the player's tap(s) — the same pulsing outline
    language the hint button already uses for its own armed state. */
 .joker-btn.armed { outline: 3px solid #fff; outline-offset: 1px; animation: jokerPulse 1s ease-in-out infinite; }
 @keyframes jokerPulse {
-  0%, 100% { box-shadow: var(--shadow-soft); }
-  50% { box-shadow: 0 0 0 4px rgba(255, 138, 212, 0.55), var(--shadow-soft); }
+  0%, 100% { box-shadow: 0 3px 0 rgba(0, 0, 0, 0.22); }
+  50% { box-shadow: 0 0 0 4px rgba(255, 138, 212, 0.55), 0 3px 0 rgba(0, 0, 0, 0.22); }
 }
 /* The column picked as the joker's source, waiting for a destination tap. */
 .tableau-col.joker-source .tableau-pile { outline: 3px solid #ff8ad4; outline-offset: 3px; border-radius: 14px; animation: jokerPulse 1s ease-in-out infinite; }

@@ -9,7 +9,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B1%3C/text%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="styles.css?v=73" />
+<link rel="stylesheet" href="styles.css?v=74" />
 </head>
 <body>
 
@@ -88,21 +88,6 @@
     <button id="game-settings-btn" class="icon-btn" aria-label="Settings" type="button"><svg class="game-settings-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 000-2l2.1-1.6a.5.5 0 00.1-.7l-2-3.5a.5.5 0 00-.6-.2l-2.5 1a7.6 7.6 0 00-1.7-1l-.4-2.6a.5.5 0 00-.5-.4h-4a.5.5 0 00-.5.4l-.4 2.6a7.6 7.6 0 00-1.7 1l-2.5-1a.5.5 0 00-.6.2l-2 3.5a.5.5 0 00.1.7L4.6 11a7.6 7.6 0 000 2l-2.1 1.6a.5.5 0 00-.1.7l2 3.5a.5.5 0 00.6.2l2.5-1a7.6 7.6 0 001.7 1l.4 2.6a.5.5 0 00.5.4h4a.5.5 0 00.5-.4l.4-2.6a7.6 7.6 0 001.7-1l2.5 1a.5.5 0 00.6-.2l2-3.5a.5.5 0 00-.1-.7L19.4 13zM12 15.5A3.5 3.5 0 1112 8.5a3.5 3.5 0 010 7z"/></svg></button>
     <div class="coins-badge small"><span><svg class="coin-icon game-coin-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="22.5,12 17.25,21.09 6.75,21.09 1.5,12 6.75,2.91 17.25,2.91" fill="#d98c00"/><polygon points="22.5,10.7 17.25,19.79 6.75,19.79 1.5,10.7 6.75,1.61 17.25,1.61" fill="#ffd83d"/><circle cx="12" cy="10.7" r="5.4" fill="#f2a30d" stroke="#c97800" stroke-width="0.6"/><ellipse cx="9.8" cy="8.3" rx="2.3" ry="1.3" fill="#ffffff" opacity="0.45" transform="rotate(-35 9.8 8.3)"/><text x="12" y="13.6" text-anchor="middle" font-size="8.6" font-weight="900" fill="#ffffff" font-family="Arial, Helvetica, sans-serif">W</text></svg></span><span id="stat-coins">0</span><button class="home-add-btn" id="game-add-btn" aria-label="Add coins" type="button">+</button></div>
     <button id="undo-btn" class="icon-btn round-action-btn" aria-label="Undo last move"><svg class="undo-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="currentColor" d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg><span id="stat-undos" class="action-badge">0</span></button>
-    <button id="hint-btn" class="hint-btn" aria-label="Hint">💡<span id="stat-hints" class="action-badge">0</span></button>
-    <button id="shuffle-btn" class="icon-btn shuffle-btn" aria-label="Reshuffle the board" type="button">
-      <svg class="shuffle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M3 16h2.6c1.4 0 2.7-.7 3.5-2l5.8-8c.8-1.3 2.1-2 3.5-2H21"/>
-        <path d="M3 8h2.6c1.4 0 2.7.7 3.5 2l.7 1"/>
-        <path d="M15.9 15l1.5 2c.8 1.3 2.1 2 3.5 2H21"/>
-        <path d="M18 3l3 3-3 3"/>
-        <path d="M18 15l3 3-3 3"/>
-      </svg>
-      <span id="shuffle-cost" class="price-badge">99</span>
-    </button>
-    <button id="joker-btn" class="icon-btn joker-btn" aria-label="Joker: move a cluster onto any column" type="button">
-      <span class="joker-mark">J</span>
-      <span id="joker-cost" class="price-badge">99</span>
-    </button>
     <div class="combo-badge" id="combo-badge">🔥 ×0</div>
   </header>
 
@@ -120,6 +105,34 @@
   <div id="foundations" class="foundations"></div>
 
   <div id="tableau" class="tableau"></div>
+
+  <div class="booster-dock">
+    <div class="booster-item">
+      <button id="hint-btn" class="hint-btn" aria-label="Hint" type="button">
+        <span class="booster-emoji">💡</span>
+        <span id="stat-hints" class="action-badge">0</span>
+      </button>
+      <span class="booster-label">Hint</span>
+    </div>
+    <div class="booster-item">
+      <button id="shuffle-btn" class="shuffle-btn" aria-label="Reshuffle the board" type="button">
+        <svg class="shuffle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M3 16h2.6c1.4 0 2.7-.7 3.5-2l5.8-8c.8-1.3 2.1-2 3.5-2H21"/>
+          <path d="M3 8h2.6c1.4 0 2.7.7 3.5 2l.7 1"/>
+          <path d="M15.9 15l1.5 2c.8 1.3 2.1 2 3.5 2H21"/>
+          <path d="M18 3l3 3-3 3"/>
+          <path d="M18 15l3 3-3 3"/>
+        </svg>
+      </button>
+      <span class="booster-cost"><svg class="coin-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="22.5,12 17.25,21.09 6.75,21.09 1.5,12 6.75,2.91 17.25,2.91" fill="#d98c00"/><polygon points="22.5,10.7 17.25,19.79 6.75,19.79 1.5,10.7 6.75,1.61 17.25,1.61" fill="#ffd83d"/><circle cx="12" cy="10.7" r="5.4" fill="#f2a30d" stroke="#c97800" stroke-width="0.6"/><text x="12" y="13.6" text-anchor="middle" font-size="8.6" font-weight="900" fill="#ffffff" font-family="Arial, Helvetica, sans-serif">W</text></svg><span id="shuffle-cost">99</span></span>
+    </div>
+    <div class="booster-item">
+      <button id="joker-btn" class="joker-btn" aria-label="Joker: move a cluster onto any column" type="button">
+        <span class="joker-mark">J</span>
+      </button>
+      <span class="booster-cost"><svg class="coin-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="22.5,12 17.25,21.09 6.75,21.09 1.5,12 6.75,2.91 17.25,2.91" fill="#d98c00"/><polygon points="22.5,10.7 17.25,19.79 6.75,19.79 1.5,10.7 6.75,1.61 17.25,1.61" fill="#ffd83d"/><circle cx="12" cy="10.7" r="5.4" fill="#f2a30d" stroke="#c97800" stroke-width="0.6"/><text x="12" y="13.6" text-anchor="middle" font-size="8.6" font-weight="900" fill="#ffffff" font-family="Arial, Helvetica, sans-serif">W</text></svg><span id="joker-cost">99</span></span>
+    </div>
+  </div>
 </section>
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
