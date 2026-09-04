@@ -380,7 +380,7 @@ function updateCardMetrics() {
   // pile would sit under empty felt instead of just past the columns.
   const contentWidth = columns * (cardW + gap); // width of the real columns at this stage's card size
   const centerInset = Math.max(0, (w - contentWidth) / 2);
-  const wasteWidth = cardW * 1.64;
+  const wasteWidth = cardW * 1.44; // front card + 2 peeks, each revealing 22% of a full card width
   const stockLeft = Math.max(0, Math.min(centerInset + contentWidth, w - cardW));
   const wasteLeft = Math.max(0, stockLeft - gap - wasteWidth);
   root.setProperty("--stock-left", stockLeft.toFixed(1) + "px");
@@ -972,19 +972,15 @@ function renderStock(s) {
   stockEl.appendChild(pile);
 }
 
-/* A peek is a narrow, non-interactive sliver showing just a previous
-   waste card's word turned sideways — visible so the player can see
-   what's coming, but only the front card (a real .card) can actually
-   be dragged or hinted. */
-function makeWastePeek(card, metrics) {
-  const div = document.createElement("div");
-  div.className = "waste-peek" + (card.isReview ? " review" : "") + (card.isMarker ? " marker" : "");
-  const cardH = (metrics && metrics.cardH) || 108;
-  const maxTextLen = cardH - 20;
-  const baseFs = (metrics && metrics.fontSize) || 16;
-  const fs = fittedFontSize(card.word, baseFs * 0.85, maxTextLen, card.isMarker ? 900 : 800);
-  div.innerHTML = `<span class="card-word waste-peek-word" style="font-size:${fs.toFixed(1)}px">${card.word}</span>`;
-  return div;
+/* A peek is a real, full-size card (same markup/face as any other
+   card) sitting behind the front waste card — only a sliver of it
+   stays visible since the card(s) in front of it are drawn on top at
+   a higher z-index, exactly like a tableau column's buried cards.
+   It's non-interactive (no drag/hint attached): only the front card
+   can actually be dragged or hinted. */
+function makeWastePeek(card, s, metrics) {
+  const el = makeCardFace(card, "waste-peek" + (card.isReview ? " review" : ""), s, metrics);
+  return el;
 }
 
 function renderWaste(s, metrics) {
@@ -992,7 +988,7 @@ function renderWaste(s, metrics) {
   const visible = s.waste.slice(-VISIBLE_WASTE);
   const n = visible.length;
   const cardW = (metrics && metrics.cardW) || 84;
-  const peekWidth = cardW * 0.32;
+  const peekReveal = cardW * 0.22;
   visible.forEach((card, i) => {
     const depth = n - 1 - i; // 0 = frontmost, 1 = next behind, 2 = furthest shown
     if (depth === 0) {
@@ -1004,8 +1000,8 @@ function renderWaste(s, metrics) {
       attachDragOrHint(cardEl, card, { type: "waste" });
       wasteEl.appendChild(cardEl);
     } else {
-      const peekEl = makeWastePeek(card, metrics);
-      peekEl.style.left = (cardW + (depth - 1) * peekWidth).toFixed(1) + "px";
+      const peekEl = makeWastePeek(card, s, metrics);
+      peekEl.style.left = (peekReveal * depth).toFixed(1) + "px";
       peekEl.style.zIndex = 10 - depth;
       wasteEl.appendChild(peekEl);
     }

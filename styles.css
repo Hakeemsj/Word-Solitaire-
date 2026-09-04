@@ -725,7 +725,7 @@ body {
   position: absolute;
   left: var(--waste-left, 0px);
   top: 0;
-  width: calc(var(--card-w, 84px) * 1.64);
+  width: calc(var(--card-w, 84px) * 1.44);
   height: var(--card-h, 108px);
 }
 .stock {
@@ -879,30 +879,16 @@ body {
 .waste-card.playable { cursor: pointer; }
 .waste-card.playable:hover { transform: translateY(-5px) !important; }
 
+/* A real, full-size card (see makeWastePeek/makeCardFace) — only
+   positioned here, same as .card.waste-card. Whatever is drawn on top
+   of it (the front card, or a shallower peek) at a higher z-index
+   naturally covers all but a sliver, exactly like a tableau column's
+   buried cards; the peek itself never has its own box shrunk. */
 .waste-peek {
   position: absolute;
   top: 0;
-  width: calc(var(--card-w, 84px) * 0.32);
-  height: var(--card-h, 108px);
-  border-radius: 12px;
-  background: linear-gradient(160deg, var(--card-bg), var(--card-bg-2));
-  border: 2px solid var(--card-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
   cursor: default;
-  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.22);
 }
-.waste-peek-word {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  white-space: nowrap;
-  font-weight: 800;
-  color: var(--ink);
-}
-.waste-peek.marker { background: linear-gradient(160deg, #fff3d0, #ffe19a); border-color: var(--accent-2); }
-.waste-peek.marker .waste-peek-word { color: #7a3d00; font-weight: 900; }
 
 /* ----- Stock ----- */
 .stock-pile {
