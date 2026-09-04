@@ -475,7 +475,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 22px;
+  gap: 44px;
   max-width: 600px;
   margin: 0 auto;
   padding: 14px 14px calc(18px + env(safe-area-inset-bottom, 0px));
