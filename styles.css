@@ -1048,6 +1048,19 @@ body {
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
   animation: crownPop 0.4s ease;
 }
+/* Marks a category that already has at least one word delivered but
+   isn't complete yet — tappable to review what's been collected so
+   far, so the pulsing glow doubles as an affordance hint. */
+.foundation-crown.shiny {
+  opacity: 1;
+  cursor: pointer;
+  filter: drop-shadow(0 0 3px rgba(255, 216, 61, 0.9));
+  animation: crownShine 1.4s ease-in-out infinite;
+}
+@keyframes crownShine {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 216, 61, 0.6)); }
+  50% { filter: drop-shadow(0 0 7px rgba(255, 216, 61, 1)); }
+}
 /* The brand mark — a heavy gold-foil "W", same gradient treatment as
    the home screen's card logo (js/ui.js wMarkIcon()), standing in for
    the old crown icon on a claimed or completed category card. */
@@ -1236,6 +1249,25 @@ body {
 
 .modal-text { color: var(--ink); font-weight: 600; }
 .modal-text.small { font-size: 0.85rem; color: var(--muted); }
+
+.category-words-list {
+  list-style: none;
+  margin: 4px 0 20px;
+  padding: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.category-words-list li {
+  background: var(--felt-2, rgba(0, 0, 0, 0.06));
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-weight: 700;
+  text-transform: capitalize;
+  color: var(--ink);
+}
 
 /* ---------- Settings modal ---------- */
 .settings-row {

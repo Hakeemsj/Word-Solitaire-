@@ -299,6 +299,7 @@ const Game = (function () {
         words: sample,
         target: sample.length,
         collected: 0,
+        collectedWords: [],
         lastWord: null,
         slotIndex: null,
         completed: false,
@@ -477,6 +478,7 @@ const Game = (function () {
 
     category.collected += 1;
     category.lastWord = card.word;
+    category.collectedWords.push(card.word);
     if (category.collected >= category.target) {
       // Free the slot the instant the set is complete, so it's
       // immediately available for a new collector card.
@@ -572,6 +574,7 @@ const Game = (function () {
       if (!c.isMarker) {
         category.collected += 1;
         category.lastWord = c.word;
+        category.collectedWords.push(c.word);
       }
     }
 
@@ -844,6 +847,7 @@ const Game = (function () {
       if (!delivered.isMarker) {
         category.collected += 1;
         category.lastWord = delivered.word;
+        category.collectedWords.push(delivered.word);
       }
     }
     if (category.collected >= category.target) {

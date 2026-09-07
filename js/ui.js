@@ -119,6 +119,12 @@ const boosterUnlockTitle = el("#booster-unlock-title");
 const boosterUnlockText = el("#booster-unlock-text");
 const boosterUnlockCloseBtn = el("#booster-unlock-close-btn");
 
+const categoryWordsModal = el("#category-words-modal");
+const categoryWordsModalBox = el(".modal", categoryWordsModal);
+const categoryWordsTitle = el("#category-words-title");
+const categoryWordsList = el("#category-words-list");
+const categoryWordsCloseBtn = el("#category-words-close-btn");
+
 /* Modal focus management: when a modal opens, focus moves INTO it (the
    inner tabindex="-1" container, not any specific button — several of
    the buttons in here can be disabled depending on state, e.g.
@@ -152,6 +158,8 @@ document.addEventListener("keydown", (e) => {
     setModalOpen(settingsModal, settingsModalBox, false);
   } else if (boosterUnlockModal.classList.contains("open")) {
     setModalOpen(boosterUnlockModal, boosterUnlockModalBox, false);
+  } else if (categoryWordsModal.classList.contains("open")) {
+    setModalOpen(categoryWordsModal, categoryWordsModalBox, false);
   }
 });
 
@@ -180,6 +188,20 @@ function showBoosterUnlockModal(emoji, title, text) {
   boosterUnlockText.textContent = text;
   setModalOpen(boosterUnlockModal, boosterUnlockModalBox, true);
 }
+
+/* Lets the player peek at a still-active category's progress without
+   waiting for it to complete — the words already delivered to it,
+   most recent first, so the freshest addition is easy to spot. */
+function showCategoryWordsModal(cat) {
+  categoryWordsTitle.textContent = cat.name;
+  categoryWordsList.innerHTML = cat.collectedWords
+    .slice()
+    .reverse()
+    .map((w) => `<li>${w}</li>`)
+    .join("");
+  setModalOpen(categoryWordsModal, categoryWordsModalBox, true);
+}
+categoryWordsCloseBtn.addEventListener("click", () => setModalOpen(categoryWordsModal, categoryWordsModalBox, false));
 const nextStageBtn = el("#next-stage-btn");
 const winStagesBtn = el("#win-stages-btn");
 
@@ -1112,11 +1134,22 @@ function renderSlots(s, metrics) {
       const wordFs = fittedFontSize(f.lastWord || "", baseFs * 1.2, cardW - 14, 800);
       tag = `<div class="foundation-tag" style="font-size:${tagFs.toFixed(1)}px">${f.name}</div>`;
       body = `<div class="foundation-last-word" style="font-size:${wordFs.toFixed(1)}px">${f.lastWord || ""}</div>
-              ${complete ? `<div class="foundation-crown gold">${wMarkIcon(f.type === "Antonym" ? "antonym" : "")}</div>` : `<div class="foundation-progress big">${f.collected}/${f.target}</div>`}`;
+              ${
+                complete
+                  ? `<div class="foundation-crown gold">${wMarkIcon(f.type === "Antonym" ? "antonym" : "")}</div>`
+                  : `<div class="foundation-crown shiny" role="button" aria-label="View collected words">${wMarkIcon(f.type === "Antonym" ? "antonym" : "")}</div>`
+              }`;
     }
 
     const cardCls = "card foundation-card" + (f && !complete ? " active-cat" : "");
     wrap.innerHTML = `${tag}<div class="${cardCls}">${body}</div>`;
+    if (f && f.collected > 0 && !complete) {
+      const crownEl = wrap.querySelector(".foundation-crown.shiny");
+      crownEl.addEventListener("click", (e) => {
+        e.stopPropagation();
+        showCategoryWordsModal(f);
+      });
+    }
     wrap.addEventListener("click", () => attemptTapMoveToSlot(slotIndex));
     foundationsEl.appendChild(wrap);
   });
