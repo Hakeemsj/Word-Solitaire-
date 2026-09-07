@@ -835,8 +835,11 @@ function resolveDrop(card, source, x, y) {
   return { success: false };
 }
 
-function attachDragOrHint(cardEl, card, source) {
-  cardEl.addEventListener("pointerdown", (e) => {
+/* The actual "grab this card" logic — pulled out of attachDragOrHint's
+   pointerdown listener so a buried .cluster-label can trigger the
+   exact same pickup on the column's real frontmost card element
+   instead of on itself (see attachClusterLabelGrab below). */
+function beginCardGrab(e, cardEl, card, source) {
     if (e.button !== undefined && e.button !== 0) return;
     if (jokerArmed) {
       e.preventDefault();
@@ -934,7 +937,10 @@ function attachDragOrHint(cardEl, card, source) {
     cardEl.setPointerCapture(e.pointerId);
     cardEl.classList.add("dragging");
     e.preventDefault();
-  });
+}
+
+function attachDragOrHint(cardEl, card, source) {
+  cardEl.addEventListener("pointerdown", (e) => beginCardGrab(e, cardEl, card, source));
 
   cardEl.addEventListener("pointermove", (e) => {
     if (!dragInfo || dragInfo.innerEl !== cardEl) return;
@@ -1181,8 +1187,17 @@ function renderTableau(s, metrics) {
       pileEl.appendChild(backEl);
     });
 
+    // How many of the trailing face-up cards belong to the SAME
+    // liftable group as the true front card — only those get a grab
+    // handler. A face-up card further back (left over from a Joker
+    // move that mixed categories in one column) sits outside that
+    // range and stays a pure visual peek, same as before.
+    const clusterSize = Game.getFrontClusterSize(colIdx);
+    const frontCard = faceUpCards[faceUpCards.length - 1];
+
     faceUpCards.forEach((card, idx) => {
       const isFrontmost = idx === faceUpCards.length - 1;
+      const inFrontCluster = idx >= faceUpCards.length - clusterSize;
       const top = backsCount * backStep + idx * clusterStep;
       if (isFrontmost) {
         const cardEl = makeCardFace(card, "tableau-card playable", s, metrics);
@@ -1213,13 +1228,27 @@ function renderTableau(s, metrics) {
         // a separate floating tab instead of an actual card peeking out
         // from behind the one in front of it.
         labelEl.style.zIndex = 100 + idx;
-        // Not interactive: tapping/dragging a buried cluster card used
-        // to select THAT element specifically, which then rendered
-        // with the same z-index:500 "lifted" look as any other
-        // selected card — jumping it above the actual front card and
-        // hiding it. Grabbing the front card already picks up this
-        // whole cluster via getFrontClusterSize, so a buried card
-        // never needed its own handler; it's purely a visual peek.
+        // Grabbing anywhere in the fan should pick up the whole
+        // cluster, same as grabbing the front card. Tapping/dragging a
+        // buried label used to select THAT element specifically, which
+        // then rendered with the same z-index:500 "lifted" look as any
+        // other selected card — jumping it above the actual front card
+        // and hiding it. Fix: redirect the grab onto the real frontmost
+        // card element (resolved at click time, since it doesn't exist
+        // in the DOM yet during this earlier iteration) so the pickup,
+        // drag ghost, and resulting selection highlight all land on the
+        // same element a direct front-card grab would use. Only wired
+        // up for labels within the current front cluster — one left
+        // over from a Joker move that mixed categories in this column
+        // stays a pure visual peek, exactly as before.
+        if (inFrontCluster) {
+          labelEl.addEventListener("pointerdown", (e) => {
+            if (Game.getState().hintMode) return; // hint stays front-card-only
+            const frontEl = pileEl.querySelector(".tableau-card");
+            if (!frontEl) return;
+            beginCardGrab(e, frontEl, frontCard, { type: "tableau", colIdx });
+          });
+        }
         pileEl.appendChild(labelEl);
       }
     });
