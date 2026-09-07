@@ -13,6 +13,14 @@ const DEV_MODE = false;
 
 const el = (sel, root = document) => root.querySelector(sel);
 
+// Shuffle/Joker stay locked (disabled, dimmed) until the player reaches
+// these stages — both are powerful "escape hatch" moves that would
+// trivialize the early, still-learning-the-rules levels.
+const SHUFFLE_UNLOCK_STAGE = 15;
+const JOKER_UNLOCK_STAGE = 25;
+const SEEN_SHUFFLE_UNLOCK_KEY = "solitaireGrow_seenShuffleUnlock";
+const SEEN_JOKER_UNLOCK_KEY = "solitaireGrow_seenJokerUnlock";
+
 /* The brand mark (in place of the old crown icon) — a heavy gold "W",
    same gradient treatment as the home screen's card logo, so a
    claimed/completed category reads as "stamped" with the game's own
@@ -104,6 +112,13 @@ const settingsBackBtn = el("#settings-back-btn");
 const settingsRestartBtn = el("#settings-restart-btn");
 const settingsHowToPlayBtn = el("#settings-howtoplay-btn");
 
+const boosterUnlockModal = el("#booster-unlock-modal");
+const boosterUnlockModalBox = el(".modal", boosterUnlockModal);
+const boosterUnlockEmoji = el("#booster-unlock-emoji");
+const boosterUnlockTitle = el("#booster-unlock-title");
+const boosterUnlockText = el("#booster-unlock-text");
+const boosterUnlockCloseBtn = el("#booster-unlock-close-btn");
+
 /* Modal focus management: when a modal opens, focus moves INTO it (the
    inner tabindex="-1" container, not any specific button — several of
    the buttons in here can be disabled depending on state, e.g.
@@ -135,8 +150,36 @@ document.addEventListener("keydown", (e) => {
     setModalOpen(noHeartsModal, noHeartsModalBox, false);
   } else if (settingsModal.classList.contains("open")) {
     setModalOpen(settingsModal, settingsModalBox, false);
+  } else if (boosterUnlockModal.classList.contains("open")) {
+    setModalOpen(boosterUnlockModal, boosterUnlockModalBox, false);
   }
 });
+
+/* Shown exactly once each, the first time a stage reaches the
+   threshold where Shuffle/Joker switch from disabled to usable — a
+   quick "here's what this new button does" explainer, not just a
+   silent unlock. Guarded by its own localStorage flag so it never
+   repeats, and only one shows per render (if both unlocked in the
+   same jump, Joker's just waits for the next render). */
+function maybeShowBoosterUnlock(s) {
+  if (boosterUnlockModal.classList.contains("open")) return;
+  if (s.stageId >= SHUFFLE_UNLOCK_STAGE && !localStorage.getItem(SEEN_SHUFFLE_UNLOCK_KEY)) {
+    localStorage.setItem(SEEN_SHUFFLE_UNLOCK_KEY, "1");
+    showBoosterUnlockModal("🔀", "Shuffle unlocked!", "Stuck? Spend coins to reshuffle every card that hasn't been delivered yet — the whole stock, waste, and board.");
+    return;
+  }
+  if (s.stageId >= JOKER_UNLOCK_STAGE && !localStorage.getItem(SEEN_JOKER_UNLOCK_KEY)) {
+    localStorage.setItem(SEEN_JOKER_UNLOCK_KEY, "1");
+    showBoosterUnlockModal("🃏", "Joker unlocked!", "Spend coins to move any card (or stack) onto any column — even one it doesn't match. A wildcard escape hatch for a stuck board.");
+  }
+}
+
+function showBoosterUnlockModal(emoji, title, text) {
+  boosterUnlockEmoji.textContent = emoji;
+  boosterUnlockTitle.textContent = title;
+  boosterUnlockText.textContent = text;
+  setModalOpen(boosterUnlockModal, boosterUnlockModalBox, true);
+}
 const nextStageBtn = el("#next-stage-btn");
 const winStagesBtn = el("#win-stages-btn");
 
@@ -451,9 +494,10 @@ function renderGame() {
   undoBtn.disabled = s.undosLeft <= 0;
   updateComboBadge(s.comboStreak);
 
-  shuffleBtn.disabled = s.coins < SHUFFLE_COST;
-  jokerBtn.disabled = !jokerArmed && s.coins < JOKER_COST;
+  shuffleBtn.disabled = s.stageId < SHUFFLE_UNLOCK_STAGE || s.coins < SHUFFLE_COST;
+  jokerBtn.disabled = s.stageId < JOKER_UNLOCK_STAGE || (!jokerArmed && s.coins < JOKER_COST);
   jokerBtn.classList.toggle("armed", jokerArmed);
+  maybeShowBoosterUnlock(s);
 
   renderStock(s);
   renderWaste(s, metrics);
@@ -1135,8 +1179,13 @@ function renderTableau(s, metrics) {
         // a separate floating tab instead of an actual card peeking out
         // from behind the one in front of it.
         labelEl.style.zIndex = 100 + idx;
-        if (selection && selection.card.id === card.id) labelEl.classList.add("tap-selected");
-        attachDragOrHint(labelEl, card, { type: "tableau", colIdx });
+        // Not interactive: tapping/dragging a buried cluster card used
+        // to select THAT element specifically, which then rendered
+        // with the same z-index:500 "lifted" look as any other
+        // selected card — jumping it above the actual front card and
+        // hiding it. Grabbing the front card already picks up this
+        // whole cluster via getFrontClusterSize, so a buried card
+        // never needed its own handler; it's purely a visual peek.
         pileEl.appendChild(labelEl);
       }
     });
@@ -1332,6 +1381,10 @@ settingsHowToPlayBtn.addEventListener("click", () => {
 
 settingsCloseBtn.addEventListener("click", () => {
   setModalOpen(settingsModal, settingsModalBox, false);
+});
+
+boosterUnlockCloseBtn.addEventListener("click", () => {
+  setModalOpen(boosterUnlockModal, boosterUnlockModalBox, false);
 });
 
 refillHeartsBtn.addEventListener("click", () => {
