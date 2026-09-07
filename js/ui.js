@@ -1137,7 +1137,8 @@ function renderSlots(s, metrics) {
               ${
                 complete
                   ? `<div class="foundation-crown gold">${wMarkIcon(f.type === "Antonym" ? "antonym" : "")}</div>`
-                  : `<div class="foundation-crown shiny" role="button" aria-label="View collected words">${wMarkIcon(f.type === "Antonym" ? "antonym" : "")}</div>`
+                  : `<div class="foundation-crown shiny" role="button" aria-label="View collected words">${wMarkIcon(f.type === "Antonym" ? "antonym" : "")}</div>
+                     <div class="foundation-progress bottom">${f.collected}/${f.target}</div>`
               }`;
     }
 

@@ -959,7 +959,12 @@ body {
   padding: 8px;
   border-radius: 18px;
 }
-.foundation { display: flex; flex-direction: column; align-items: center; width: 100%; min-width: 0; }
+/* justify-content: flex-end anchors every card's BOTTOM edge to the
+   row's bottom, regardless of whether that card has a .foundation-tag
+   sitting above it — a tag adds height above the card, which would
+   otherwise push that one card down the row relative to its
+   tag-less neighbors. */
+.foundation { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 100%; min-width: 0; }
 .foundation-tag {
   background: linear-gradient(155deg, var(--accent), var(--accent-2));
   color: #3a2200;
@@ -1026,15 +1031,18 @@ body {
 }
 .foundation-name { font-size: 0.7rem; font-weight: 800; color: var(--ink); white-space: nowrap; max-width: 100%; }
 .foundation-progress { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
-/* A small muted counter tucked in the corner, out of the centered flex
-   flow entirely — the delivered word below is the card's actual
-   headline, not this. Never shown at the same time as .foundation-crown
-   (see js/ui.js), so the two never compete for the same corner. */
-.foundation-progress.big {
+/* A small muted counter pinned to the card's bottom edge, out of the
+   centered flex flow entirely — the delivered word above is the
+   card's actual headline, not this. The corner above it is the
+   tappable W mark's (see .foundation-crown / js/ui.js), so the two
+   never compete for the same spot. */
+.foundation-progress.bottom {
   position: absolute;
-  top: 7px;
-  right: 9px;
-  font-size: 0.7rem;
+  bottom: 6px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 0.65rem;
   font-weight: 700;
   color: var(--muted);
 }
