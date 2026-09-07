@@ -45,6 +45,7 @@ const homeHeartsLabel = el("#home-hearts-label");
 const homeSettingsBtn = el("#home-settings-btn");
 const homeContinueBtn = el("#home-continue-btn");
 const homeContinueLevelNum = el("#home-continue-level-num");
+const homeContinueLabel = el("#home-continue-label");
 
 const noHeartsModal = el("#no-hearts-modal");
 const noHeartsModalBox = el(".modal", noHeartsModal);
@@ -247,7 +248,9 @@ function formatCountdown(ms) {
 function renderHome() {
   const save = Game.getSave();
   homeCoinsCount.textContent = save.coins;
-  homeContinueLevelNum.textContent = save.unlockedStage;
+  const inProgressStage = Game.peekProgressStageId();
+  homeContinueLevelNum.textContent = inProgressStage || save.unlockedStage;
+  homeContinueLabel.textContent = inProgressStage ? "Continue" : "Play";
   homeHeartsCount.textContent = save.lives;
   homeHeartsLabel.textContent = save.lives >= MAX_LIVES ? "Full" : formatCountdown(Game.msUntilNextLife());
   el("#home-hearts").classList.toggle("empty", save.lives <= 0);
@@ -295,6 +298,24 @@ function openStage(stageId) {
     return;
   }
   startStage(stageId);
+}
+
+/* Picks a level back up exactly where it was left — no hearts gate,
+   since resuming isn't a new attempt (only Restart/Give Up on a
+   stuck attempt cost a heart). Falls back to a fresh start if the
+   saved board turns out to be missing/corrupt. */
+function resumeStage() {
+  const resumed = Game.resume();
+  if (!resumed) {
+    openStage(Game.getSave().unlockedStage);
+    return;
+  }
+  Sound.warmUp();
+  wonSoundPlayed = false;
+  selection = null;
+  cancelJokerMode();
+  showScreen("game");
+  renderGame();
 }
 
 /* TEMP dev-only entry point (see DEV_MODE above): same as openStage, but
@@ -402,6 +423,7 @@ function fittedFontSize(text, basePx, maxWidthPx, weight) {
 function renderGame() {
   const s = Game.getState();
   if (!s) return;
+  Game.saveProgress();
 
   // A drag's flying/ghost element normally lives as a direct child of
   // <body> only transiently — appended when the drag starts, removed
@@ -1230,6 +1252,7 @@ restartBtn.addEventListener("click", restartLevelLosingLife);
 
 giveUpBtn.addEventListener("click", () => {
   Game.loseLife();
+  Game.clearProgress();
   showScreen("stages");
   renderHome();
 });
@@ -1245,7 +1268,12 @@ winStagesBtn.addEventListener("click", () => {
 });
 
 homeContinueBtn.addEventListener("click", () => {
-  openStage(Game.getSave().unlockedStage);
+  const inProgressStage = Game.peekProgressStageId();
+  if (inProgressStage) {
+    resumeStage();
+  } else {
+    openStage(Game.getSave().unlockedStage);
+  }
 });
 
 homeAddBtn.addEventListener("click", () => {

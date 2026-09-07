@@ -99,6 +99,37 @@ function saveGame(save) {
   }
 }
 
+/* A single slot holding the ONE stage currently mid-play, so leaving
+   (menu, backgrounding the app, closing the tab) and coming back later
+   resumes the exact board instead of re-dealing. Written wholesale from
+   `state` on every render while status is "playing" — cheap, and it
+   means there's no separate list of call sites to keep in sync with
+   every move function. Undo history is NOT persisted (would multiply
+   the storage cost by move count for little benefit); a resumed game
+   just starts a fresh undo chain from wherever it resumes. */
+const IN_PROGRESS_KEY = "solitaireGrow_inprogress_v1";
+
+function clearProgress() {
+  try {
+    localStorage.removeItem(IN_PROGRESS_KEY);
+  } catch (e) {
+    /* ignore */
+  }
+}
+
+/* Returns the in-progress stage id, or null if there is none (so the
+   UI can tell "Play" from "Continue" without loading the whole board). */
+function peekProgressStageId() {
+  try {
+    const raw = localStorage.getItem(IN_PROGRESS_KEY);
+    if (!raw) return null;
+    const saved = JSON.parse(raw);
+    return saved && saved.status === "playing" && Number.isInteger(saved.stageId) ? saved.stageId : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 function shuffle(arr) {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
@@ -360,7 +391,35 @@ const Game = (function () {
       lastCompletedCategory: null,
     };
     history = [];
+    clearProgress();
     return getState();
+  }
+
+  /* Loads whatever stage was left mid-play, exactly as it was —
+     tableau, foundations, stock/waste, moves left, all of it. Returns
+     null (and touches nothing) if there's no in-progress save, so the
+     caller can fall back to a fresh start(). */
+  function resume() {
+    try {
+      const raw = localStorage.getItem(IN_PROGRESS_KEY);
+      if (!raw) return null;
+      const saved = JSON.parse(raw);
+      if (!saved || saved.status !== "playing") return null;
+      state = saved;
+      history = [];
+      return getState();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveProgress() {
+    if (!state || state.status !== "playing") return;
+    try {
+      localStorage.setItem(IN_PROGRESS_KEY, JSON.stringify(state));
+    } catch (e) {
+      /* same as saveGame — silently skip, nothing else to do */
+    }
   }
 
   function getState() {
@@ -382,6 +441,7 @@ const Game = (function () {
       saveGame(save);
       state.coins = save.coins;
       state.reward = reward;
+      clearProgress();
     } else if (state.movesLeft === 0) {
       state.status = "stuck";
     }
@@ -957,5 +1017,9 @@ const Game = (function () {
     loseLife,
     msUntilNextLife,
     refillLives,
+    resume,
+    saveProgress,
+    clearProgress,
+    peekProgressStageId,
   };
 })();
