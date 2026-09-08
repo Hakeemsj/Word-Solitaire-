@@ -459,8 +459,6 @@ const WORDS = {
   father: { meaning: "A male parent.", example: "His father taught him how to fish." },
   sister: { meaning: "A female sibling.", example: "My sister and I share a room." },
   brother: { meaning: "A male sibling.", example: "His brother helped him move to a new apartment." },
-  grandmother: { meaning: "The mother of one's mother or father.", example: "Her grandmother told stories about the old days." },
-  grandfather: { meaning: "The father of one's mother or father.", example: "His grandfather served in the navy." },
   aunt: { meaning: "The sister of one's mother or father.", example: "Her aunt sent her a birthday card." },
   uncle: { meaning: "The brother of one's mother or father.", example: "His uncle taught him how to drive." },
 
@@ -687,7 +685,6 @@ const WORDS = {
   // Synonyms — Delicious
   tasty: { meaning: "Having a pleasant flavor.", example: "The soup was hot and tasty." },
   yummy: { meaning: "Very tasty, often used casually.", example: "The kids said the cookies were yummy." },
-  scrumptious: { meaning: "Extremely delicious.", example: "She baked a scrumptious chocolate cake." },
   savory: { meaning: "Having a pleasant, salty or spicy taste, not sweet.", example: "He prefers savory snacks over sweet ones." },
 
   // Synonyms — Messy
@@ -916,7 +913,6 @@ const WORDS = {
   surgery: { meaning: "A medical operation.", example: "He had surgery on his broken leg." },
   injection: { meaning: "The act of putting medicine into the body with a needle.", example: "The nurse gave him a painless injection." },
   bandage: { meaning: "A strip of material used to cover a wound.", example: "She wrapped a bandage around his arm." },
-  prescription: { meaning: "A doctor's written instruction for medicine.", example: "He picked up his prescription at the pharmacy." },
 
   // Gym
   treadmill: { meaning: "A machine used for walking or running in place.", example: "She runs on the treadmill every morning." },
@@ -1047,7 +1043,7 @@ const RELATIONS = [
   { id: "cat_flowers", type: "Category", name: "Flowers", words: ["rose", "tulip", "sunflower", "lily", "orchid"] },
   { id: "cat_trees", type: "Category", name: "Trees", words: ["oak", "pine", "palm", "sakura"] },
   { id: "cat_genres", type: "Category", name: "Genres", words: ["rock", "jazz", "classical", "pop"] },
-  { id: "cat_family", type: "Category", name: "Family", words: ["mother", "father", "sister", "brother", "grandmother", "grandfather", "aunt", "uncle"] },
+  { id: "cat_family", type: "Category", name: "Family", words: ["mother", "father", "sister", "brother", "aunt", "uncle"] },
   { id: "cat_planets", type: "Category", name: "Planets", words: ["mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune"] },
   { id: "cat_continents", type: "Category", name: "Continents", words: ["asia", "africa", "europe", "antarctica"] },
   { id: "cat_seasons", type: "Category", name: "Seasons", words: ["spring", "summer", "autumn", "winter"] },
@@ -1082,7 +1078,7 @@ const RELATIONS = [
   { id: "syn_poor", type: "Synonym", name: "Poor", words: ["broke", "needy", "indigent", "moneyless"] },
   { id: "syn_brave", type: "Synonym", name: "Brave", words: ["courageous", "fearless", "bold", "heroic"] },
   { id: "syn_lazy", type: "Synonym", name: "Lazy", words: ["idle", "sluggish", "inactive"] },
-  { id: "syn_delicious", type: "Synonym", name: "Delicious", words: ["tasty", "yummy", "scrumptious", "savory"] },
+  { id: "syn_delicious", type: "Synonym", name: "Delicious", words: ["tasty", "yummy", "savory"] },
   { id: "syn_messy", type: "Synonym", name: "Messy", words: ["untidy", "filthy", "chaotic", "cluttered"] },
   { id: "syn_tidy", type: "Synonym", name: "Tidy", words: ["spotless", "neat", "organized", "stylish"] },
   { id: "syn_noisy", type: "Synonym", name: "Noisy", words: ["loud", "deafening", "booming", "blaring"] },
@@ -1122,7 +1118,7 @@ const RELATIONS = [
   { id: "activity_exercise", type: "Activity", name: "Exercise", words: ["jog", "stretch", "lift", "squat"] },
 
   { id: "context_wedding", type: "Context", name: "Wedding", words: ["bride", "groom", "ring", "bouquet", "honeymoon"] },
-  { id: "context_hospital", type: "Context", name: "Hospital", words: ["patient", "surgery", "injection", "bandage", "prescription"] },
+  { id: "context_hospital", type: "Context", name: "Hospital", words: ["patient", "surgery", "injection", "bandage"] },
   { id: "context_gym", type: "Context", name: "Gym", words: ["treadmill", "dumbbell", "workout", "trainer", "membership"] },
   { id: "context_library", type: "Context", name: "Library", words: ["librarian", "bookshelf", "borrow", "silence"] },
   { id: "context_bank", type: "Context", name: "Bank", words: ["deposit", "withdraw", "account", "loan", "transfer"] },
