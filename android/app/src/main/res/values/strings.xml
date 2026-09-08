@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Word Solitaire</string>
+    <string name="title_activity_main">Word Solitaire</string>
+    <string name="package_name">com.hakeemsj.wordsolitaire</string>
+    <string name="custom_url_scheme">com.hakeemsj.wordsolitaire</string>
+</resources>
