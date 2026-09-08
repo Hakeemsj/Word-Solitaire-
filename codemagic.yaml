@@ -74,3 +74,70 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
+
+  android-debug-build:
+    name: Android Debug Build (no signing, validation only)
+    max_build_duration: 30
+    instance_type: linux_x2
+    environment:
+      node: latest
+      java: 17
+    scripts:
+      - name: Install npm dependencies
+        script: npm install
+      - name: Build web assets
+        script: npm run build
+      - name: Sync Capacitor Android project
+        script: npx cap sync android
+      - name: Build debug APK (unsigned)
+        script: |
+          cd android
+          ./gradlew assembleDebug
+    artifacts:
+      - android/app/build/outputs/apk/debug/*.apk
+
+  # --- Not usable yet ---
+  # Needs two things set up in the Codemagic dashboard first:
+  #   1. An upload keystore under Team settings > Code signing identities >
+  #      Android keystores, saved under the reference name
+  #      `word_solitaire_upload_key` below (Codemagic can generate a new
+  #      keystore for you right there — no local Java/keytool needed).
+  #   2. A Google Play service account JSON key (Play Console > Setup >
+  #      API access > create a service account with Release Manager
+  #      permissions) added as an encrypted environment variable named
+  #      GCLOUD_SERVICE_ACCOUNT_CREDENTIALS, inside an environment variable
+  #      group named `google_play_credentials` below.
+  # Field names for Android signing/publishing shift occasionally between
+  # Codemagic versions — cross-check this against their current Android +
+  # Google Play publishing docs before the first real run.
+  android-playstore-release:
+    name: Android Play Store Release (signed)
+    max_build_duration: 60
+    instance_type: linux_x2
+    environment:
+      node: latest
+      java: 17
+      groups:
+        - google_play_credentials
+      android_signing:
+        - word_solitaire_upload_key
+      vars:
+        PACKAGE_NAME: com.hakeemsj.wordsolitaire
+    scripts:
+      - name: Install npm dependencies
+        script: npm install
+      - name: Build web assets
+        script: npm run build
+      - name: Sync Capacitor Android project
+        script: npx cap sync android
+      - name: Build and sign the .aab
+        script: |
+          cd android
+          ./gradlew bundleRelease
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: true
