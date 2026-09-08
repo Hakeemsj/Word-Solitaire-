@@ -45,4 +45,4 @@ the "Last updated" date above changed accordingly.
 
 ## 7. Contact
 
-Questions about this policy can be sent to: **[TODO: add contact email]**
+Questions about this policy can be sent to: **haksw8@gmail.com**
