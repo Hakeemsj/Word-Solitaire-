@@ -18,8 +18,10 @@ const el = (sel, root = document) => root.querySelector(sel);
 // trivialize the early, still-learning-the-rules levels.
 const SHUFFLE_UNLOCK_STAGE = 15;
 const JOKER_UNLOCK_STAGE = 25;
+const CATEGORY_WORDS_HINT_STAGE = 3;
 const SEEN_SHUFFLE_UNLOCK_KEY = "solitaireGrow_seenShuffleUnlock";
 const SEEN_JOKER_UNLOCK_KEY = "solitaireGrow_seenJokerUnlock";
+const SEEN_CATEGORY_WORDS_HINT_KEY = "solitaireGrow_seenCategoryWordsHint";
 
 /* The brand mark (in place of the old crown icon) — a heavy gold "W",
    same gradient treatment as the home screen's card logo, so a
@@ -125,6 +127,10 @@ const categoryWordsTitle = el("#category-words-title");
 const categoryWordsList = el("#category-words-list");
 const categoryWordsCloseBtn = el("#category-words-close-btn");
 
+const adPlaceholderModal = el("#ad-placeholder-modal");
+const adPlaceholderModalBox = el(".modal", adPlaceholderModal);
+const adPlaceholderContinueBtn = el("#ad-placeholder-continue-btn");
+
 /* Modal focus management: when a modal opens, focus moves INTO it (the
    inner tabindex="-1" container, not any specific button — several of
    the buttons in here can be disabled depending on state, e.g.
@@ -160,6 +166,8 @@ document.addEventListener("keydown", (e) => {
     setModalOpen(boosterUnlockModal, boosterUnlockModalBox, false);
   } else if (categoryWordsModal.classList.contains("open")) {
     setModalOpen(categoryWordsModal, categoryWordsModalBox, false);
+  } else if (adPlaceholderModal.classList.contains("open")) {
+    adPlaceholderContinueBtn.click();
   }
 });
 
@@ -171,6 +179,11 @@ document.addEventListener("keydown", (e) => {
    same jump, Joker's just waits for the next render). */
 function maybeShowBoosterUnlock(s) {
   if (boosterUnlockModal.classList.contains("open")) return;
+  if (s.stageId >= CATEGORY_WORDS_HINT_STAGE && !localStorage.getItem(SEEN_CATEGORY_WORDS_HINT_KEY)) {
+    localStorage.setItem(SEEN_CATEGORY_WORDS_HINT_KEY, "1");
+    showBoosterUnlockModal("📖", "Review what you've collected", "Once a category card has collected a word, tap its glowing W mark any time to see every word you've sent to it so far.");
+    return;
+  }
   if (s.stageId >= SHUFFLE_UNLOCK_STAGE && !localStorage.getItem(SEEN_SHUFFLE_UNLOCK_KEY)) {
     localStorage.setItem(SEEN_SHUFFLE_UNLOCK_KEY, "1");
     showBoosterUnlockModal("🔀", "Shuffle unlocked!", "Stuck? Spend coins to reshuffle every card that hasn't been delivered yet — the whole stock, waste, and board.");
@@ -202,6 +215,22 @@ function showCategoryWordsModal(cat) {
   setModalOpen(categoryWordsModal, categoryWordsModalBox, true);
 }
 categoryWordsCloseBtn.addEventListener("click", () => setModalOpen(categoryWordsModal, categoryWordsModalBox, false));
+
+/* Stands in for a real interstitial ad between finishing a level and
+   landing back on the stage-select screen — swap the body of this
+   function for the real ad SDK call later; everything that calls it
+   just needs onDone to eventually fire once. */
+let adPlaceholderOnDone = null;
+function showAdPlaceholder(onDone) {
+  adPlaceholderOnDone = onDone;
+  setModalOpen(adPlaceholderModal, adPlaceholderModalBox, true);
+}
+adPlaceholderContinueBtn.addEventListener("click", () => {
+  setModalOpen(adPlaceholderModal, adPlaceholderModalBox, false);
+  const cb = adPlaceholderOnDone;
+  adPlaceholderOnDone = null;
+  if (cb) cb();
+});
 const nextStageBtn = el("#next-stage-btn");
 const winStagesBtn = el("#win-stages-btn");
 
@@ -532,6 +561,7 @@ function renderGame() {
     hintMeaning.textContent = s.lastHint.meaning;
     hintExample.textContent = s.lastHint.example;
     hintRelation.textContent = `${s.lastHint.relationType}: ${s.lastHint.relationName}`;
+    hintRelation.style.display = s.lastHint.isMarker ? "none" : "block";
     hintExample.style.display = s.lastHint.isMarker ? "none" : "block";
     el("#hint-example-label").style.display = s.lastHint.isMarker ? "none" : "block";
   }
@@ -554,7 +584,6 @@ function renderGame() {
     winTitle.textContent = s.hintsUsed === 0 && s.movesLeft > 0 ? "Perfect!" : "Level Complete!";
     winReward.textContent = s.reward;
     winMovesUsed.textContent = s.movesUsed;
-    nextStageBtn.style.display = s.stageId >= STAGES.length ? "none" : "inline-block";
     if (!wonSoundPlayed) {
       wonSoundPlayed = true;
       Sound.win();
@@ -1370,8 +1399,11 @@ giveUpBtn.addEventListener("click", () => {
 });
 
 nextStageBtn.addEventListener("click", () => {
-  const s = Game.getState();
-  openStage(Math.min(s.stageId + 1, STAGES.length));
+  setModalOpen(winModal, winModalBox, false);
+  showAdPlaceholder(() => {
+    showScreen("stages");
+    renderHome();
+  });
 });
 
 winStagesBtn.addEventListener("click", () => {
