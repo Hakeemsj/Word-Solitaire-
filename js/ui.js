@@ -113,6 +113,12 @@ const settingsCloseBtn = el("#settings-close-btn");
 const settingsBackBtn = el("#settings-back-btn");
 const settingsRestartBtn = el("#settings-restart-btn");
 const settingsHowToPlayBtn = el("#settings-howtoplay-btn");
+const settingsResetGameBtn = el("#settings-reset-game-btn");
+
+const resetGameConfirmModal = el("#reset-game-confirm-modal");
+const resetGameConfirmModalBox = el(".modal", resetGameConfirmModal);
+const resetGameConfirmBtn = el("#reset-game-confirm-btn");
+const resetGameCancelBtn = el("#reset-game-cancel-btn");
 
 const boosterUnlockModal = el("#booster-unlock-modal");
 const boosterUnlockModalBox = el(".modal", boosterUnlockModal);
@@ -168,6 +174,8 @@ document.addEventListener("keydown", (e) => {
     setModalOpen(categoryWordsModal, categoryWordsModalBox, false);
   } else if (adPlaceholderModal.classList.contains("open")) {
     adPlaceholderContinueBtn.click();
+  } else if (resetGameConfirmModal.classList.contains("open")) {
+    setModalOpen(resetGameConfirmModal, resetGameConfirmModalBox, false);
   }
 });
 
@@ -1474,8 +1482,34 @@ settingsHowToPlayBtn.addEventListener("click", () => {
   if (typeof Tutorial !== "undefined") Tutorial.replayIntro();
 });
 
+settingsResetGameBtn.addEventListener("click", () => {
+  setModalOpen(settingsModal, settingsModalBox, false);
+  setModalOpen(resetGameConfirmModal, resetGameConfirmModalBox, true);
+});
+
 settingsCloseBtn.addEventListener("click", () => {
   setModalOpen(settingsModal, settingsModalBox, false);
+});
+
+resetGameCancelBtn.addEventListener("click", () => {
+  setModalOpen(resetGameConfirmModal, resetGameConfirmModalBox, false);
+});
+
+/* A full factory reset, not just clearing the save — also wipes the
+   in-progress mid-stage snapshot and every one-time "seen it" flag
+   (tutorial, booster unlocks, the category-words tip) so starting
+   over genuinely replays the first-time experience. Reloads rather
+   than re-rendering so every module's in-memory state (selection,
+   joker mode, etc.) resets cleanly too. */
+resetGameConfirmBtn.addEventListener("click", () => {
+  [SAVE_KEY, IN_PROGRESS_KEY, TUTORIAL_KEY, SEEN_SHUFFLE_UNLOCK_KEY, SEEN_JOKER_UNLOCK_KEY, SEEN_CATEGORY_WORDS_HINT_KEY].forEach((key) => {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      /* storage unavailable — nothing more we can do here */
+    }
+  });
+  location.reload();
 });
 
 boosterUnlockCloseBtn.addEventListener("click", () => {
