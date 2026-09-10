@@ -1450,6 +1450,7 @@ function openSettings() {
   const inGame = screenGame.classList.contains("active");
   settingsBackBtn.style.display = inGame ? "" : "none";
   settingsRestartBtn.style.display = inGame ? "" : "none";
+  settingsResetGameBtn.style.display = inGame ? "none" : "";
   setModalOpen(settingsModal, settingsModalBox, true);
 }
 
