@@ -18,7 +18,6 @@ const el = (sel, root = document) => root.querySelector(sel);
 // trivialize the early, still-learning-the-rules levels.
 const SHUFFLE_UNLOCK_STAGE = 15;
 const JOKER_UNLOCK_STAGE = 25;
-const CATEGORY_WORDS_HINT_STAGE = 3;
 const SEEN_SHUFFLE_UNLOCK_KEY = "solitaireGrow_seenShuffleUnlock";
 const SEEN_JOKER_UNLOCK_KEY = "solitaireGrow_seenJokerUnlock";
 const SEEN_CATEGORY_WORDS_HINT_KEY = "solitaireGrow_seenCategoryWordsHint";
@@ -137,6 +136,10 @@ const adPlaceholderModal = el("#ad-placeholder-modal");
 const adPlaceholderModalBox = el(".modal", adPlaceholderModal);
 const adPlaceholderContinueBtn = el("#ad-placeholder-continue-btn");
 
+const categoryHintCoach = el("#category-hint-coach");
+const categoryHintSpotlight = el("#category-hint-spotlight");
+const categoryHintBubble = el("#category-hint-bubble");
+
 /* Modal focus management: when a modal opens, focus moves INTO it (the
    inner tabindex="-1" container, not any specific button — several of
    the buttons in here can be disabled depending on state, e.g.
@@ -176,6 +179,8 @@ document.addEventListener("keydown", (e) => {
     adPlaceholderContinueBtn.click();
   } else if (resetGameConfirmModal.classList.contains("open")) {
     setModalOpen(resetGameConfirmModal, resetGameConfirmModalBox, false);
+  } else if (categoryHintCoach.classList.contains("open")) {
+    dismissCategoryHint();
   }
 });
 
@@ -187,11 +192,6 @@ document.addEventListener("keydown", (e) => {
    same jump, Joker's just waits for the next render). */
 function maybeShowBoosterUnlock(s) {
   if (boosterUnlockModal.classList.contains("open")) return;
-  if (s.stageId >= CATEGORY_WORDS_HINT_STAGE && !localStorage.getItem(SEEN_CATEGORY_WORDS_HINT_KEY)) {
-    localStorage.setItem(SEEN_CATEGORY_WORDS_HINT_KEY, "1");
-    showBoosterUnlockModal("📖", "Review what you've collected", "Once a category card has collected a word, tap its glowing W mark any time to see every word you've sent to it so far.");
-    return;
-  }
   if (s.stageId >= SHUFFLE_UNLOCK_STAGE && !localStorage.getItem(SEEN_SHUFFLE_UNLOCK_KEY)) {
     localStorage.setItem(SEEN_SHUFFLE_UNLOCK_KEY, "1");
     showBoosterUnlockModal("🔀", "Shuffle unlocked!", "Stuck? Spend coins to reshuffle every card that hasn't been delivered yet — the whole stock, waste, and board.");
@@ -209,6 +209,34 @@ function showBoosterUnlockModal(emoji, title, text) {
   boosterUnlockText.textContent = text;
   setModalOpen(boosterUnlockModal, boosterUnlockModalBox, true);
 }
+
+/* One-time spotlight tip pointing at the first shiny W mark that ever
+   appears — same visual language as the guided first-level tutorial
+   (dimmed backdrop, glowing ring, a short bubble), but a single static
+   callout rather than a multi-step coached flow, and dismissed by
+   tapping anywhere rather than by performing a real game action. */
+function showCategoryHintSpotlight(targetEl) {
+  categoryHintCoach.classList.add("open");
+  const r = targetEl.getBoundingClientRect();
+  const pad = 6;
+  categoryHintSpotlight.style.left = r.left - pad + "px";
+  categoryHintSpotlight.style.top = r.top - pad + "px";
+  categoryHintSpotlight.style.width = r.width + pad * 2 + "px";
+  categoryHintSpotlight.style.height = r.height + pad * 2 + "px";
+
+  const bubbleRect = categoryHintBubble.getBoundingClientRect();
+  const spaceBelow = window.innerHeight - (r.bottom + pad);
+  const top = spaceBelow > bubbleRect.height + 20 ? r.bottom + pad + 14 : Math.max(12, r.top - pad - bubbleRect.height - 14);
+  let left = r.left + r.width / 2 - bubbleRect.width / 2;
+  left = Math.max(12, Math.min(left, window.innerWidth - bubbleRect.width - 12));
+  categoryHintBubble.style.top = top + "px";
+  categoryHintBubble.style.left = left + "px";
+}
+
+function dismissCategoryHint() {
+  categoryHintCoach.classList.remove("open");
+}
+categoryHintCoach.addEventListener("click", dismissCategoryHint);
 
 /* Lets the player peek at a still-active category's progress without
    waiting for it to complete — the words already delivered to it,
@@ -1197,6 +1225,14 @@ function renderSlots(s, metrics) {
     wrap.addEventListener("click", () => attemptTapMoveToSlot(slotIndex));
     foundationsEl.appendChild(wrap);
   });
+
+  if (!localStorage.getItem(SEEN_CATEGORY_WORDS_HINT_KEY) && !categoryHintCoach.classList.contains("open")) {
+    const firstShinyCrown = foundationsEl.querySelector(".foundation-crown.shiny");
+    if (firstShinyCrown) {
+      localStorage.setItem(SEEN_CATEGORY_WORDS_HINT_KEY, "1");
+      showCategoryHintSpotlight(firstShinyCrown);
+    }
+  }
 }
 
 function renderTableau(s, metrics) {

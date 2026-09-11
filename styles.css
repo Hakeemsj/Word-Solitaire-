@@ -1334,6 +1334,11 @@ body {
   pointer-events: none;
 }
 .tutorial-coach.open { display: block; }
+/* Unlike the guided first-level tutorial (which lets taps pass through
+   to the real card underneath so the player performs the actual
+   action), this one-off spotlight tip has nothing underneath it to
+   interact with — tapping anywhere just dismisses it. */
+.category-hint-coach { pointer-events: auto; cursor: pointer; }
 .tutorial-spotlight {
   position: fixed;
   display: none;
