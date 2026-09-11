@@ -217,6 +217,12 @@ function showBoosterUnlockModal(emoji, title, text) {
    tapping anywhere rather than by performing a real game action. */
 function showCategoryHintSpotlight(targetEl) {
   categoryHintCoach.classList.add("open");
+  // The base CSS hides this by default (same as the tutorial's own
+  // spotlight element) so it can be turned off mid-coaching without
+  // a target; toggling the coach's own .open class alone doesn't
+  // cascade into overriding this.
+  categoryHintSpotlight.style.display = "block";
+
   const r = targetEl.getBoundingClientRect();
   const pad = 6;
   categoryHintSpotlight.style.left = r.left - pad + "px";
@@ -224,10 +230,15 @@ function showCategoryHintSpotlight(targetEl) {
   categoryHintSpotlight.style.width = r.width + pad * 2 + "px";
   categoryHintSpotlight.style.height = r.height + pad * 2 + "px";
 
+  // Anchor the bubble to the whole card, not just the small W mark —
+  // "below the icon" would still land inside the same card's own
+  // body text, since the icon sits high up in the card's corner.
+  const cardEl = targetEl.closest(".foundation") || targetEl;
+  const cardRect = cardEl.getBoundingClientRect();
   const bubbleRect = categoryHintBubble.getBoundingClientRect();
-  const spaceBelow = window.innerHeight - (r.bottom + pad);
-  const top = spaceBelow > bubbleRect.height + 20 ? r.bottom + pad + 14 : Math.max(12, r.top - pad - bubbleRect.height - 14);
-  let left = r.left + r.width / 2 - bubbleRect.width / 2;
+  const spaceBelow = window.innerHeight - (cardRect.bottom + pad);
+  const top = spaceBelow > bubbleRect.height + 20 ? cardRect.bottom + pad + 14 : Math.max(12, cardRect.top - pad - bubbleRect.height - 14);
+  let left = cardRect.left + cardRect.width / 2 - bubbleRect.width / 2;
   left = Math.max(12, Math.min(left, window.innerWidth - bubbleRect.width - 12));
   categoryHintBubble.style.top = top + "px";
   categoryHintBubble.style.left = left + "px";
